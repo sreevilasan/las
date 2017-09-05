@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.container {
+    overflow: hidden;
+    background-color: #333;
+    font-family: Arial;
+}
+
+.container a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+.dropdown .dropbtn {
+    cursor: pointer;
+    font-size: 16px;    
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+}
+
+.container a:hover, .dropdown:hover .dropbtn {
+    background-color: red;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.show {
+    display: block;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+	<a href="#home">Home</a>
+	
+	<div class="dropdown">
+		<button class="dropbtn" onclick="projectFunction()">Project</button>
+		<div class="dropdown-content" id="projectDropdown">
+			<a href="#viewprj">View Project</a>
+			<a href="#addprj">Add New Project</a>
+			<a href="#helpprj">Help</a>
+		</div>
+	</div> 
+	
+	<div class="dropdown">
+		<button class="dropbtn" onclick="companyFunction()">Company</button>
+		<div class="dropdown-content" id="companyDropdown">
+			<a href="#viewcom">View Company</a>
+			<a href="#addcom">Add New Company</a>
+			<a href="#helpcom">Help</a>
+		</div>
+	</div> 
+	
+	<div class="dropdown">
+		<button class="dropbtn" onclick="contactFunction()">Contact</button>
+		<div class="dropdown-content" id="contactDropdown">
+			<a href="#viewcon">View Contact</a>
+			<a href="#addcon">Add New Contact</a>
+			<a href="#helpcon">Help</a>
+		</div>
+	</div> 
+	
+	<a href="#document">Document</a>
+
+    <div class="dropdown">
+		<button class="dropbtn" onclick="employeeFunction()">Employee</button>
+		<div class="dropdown-content" id="employeeDropdown">
+			<a href="#viewemp">View Employee</a>
+			<a href="#addemp">Add New Employee</a>
+			<a href="#mhemp">Employee Manhours</a>
+		</div>
+	</div> 
+	
+	<a href="#service">Service</a>
+  <div class="dropdown">
+    <button class="dropbtn" onclick="myFunction()">Dropdown</button>
+    <div class="dropdown-content" id="myDropdown">
+		<a href="#employee">Employee</a>
+		<a href="#project">Project</a>
+		<a href="#company">Company</a>
+		<a href="#contact">Contact</a>
+		<a href="#document">Document</a>
+    </div>
+  </div> 
+</div>
+<h1>
+	<title>LAS Database</title>
+	<img src="images/LasDatabase.jpg" height="45" width="135"> 
+</h1>
+<h2>Welcome to LAS Database</h2>
+<p>Click on the menu to select.</p>
+
+<script>
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function projectFunction() { document.getElementById("projectDropdown").classList.toggle("show");}
+function companyFunction() { document.getElementById("companyDropdown").classList.toggle("show");}
+function contactFunction() { document.getElementById("contactDropdown").classList.toggle("show");}
+function employeeFunction() { document.getElementById("employeeDropdown").classList.toggle("show");}
+
+function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(e) {
+  if (!e.target.matches('.dropbtn')) {
+    var myDropdown = document.getElementById("myDropdown");
+      if (myDropdown.classList.contains('show')) {
+        myDropdown.classList.remove('show');
+      }
+	}
+}
+
+
+</script>
+</body>
+</html>
