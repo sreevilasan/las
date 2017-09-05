@@ -31,7 +31,7 @@
 
 /*
 echo '<option disabled selected></option>';
-echo '<option value="1">Sree</option>';
+echo '<option value="1">Visit</option>';
 echo '<option value="2">Report</option>';
 echo '<option value="3">Visit</option>';
 echo '<option value="4">Calculation</option>';
