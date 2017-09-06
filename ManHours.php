@@ -218,6 +218,54 @@
 </style>
 		<link rel="stylesheet" href="css/manhour.css">
 		<script src="manhour.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css">
+		<script type="text/javascript">
+
+				
+			$(function() {
+				var startDate;
+				var endDate;
+				
+
+				
+				var selectCurrentWeek = function() {
+					window.setTimeout(function () {
+						$('.week-picker').find('.ui-datepicker-current-day a').addClass('ui-state-active')
+					}, 1);
+				}
+				
+				$('.week-picker').datepicker( {
+					showOtherMonths: true,
+					selectOtherMonths: true,
+					onSelect: function(dateText, inst) { 
+						var date = $(this).datepicker('getDate');
+						startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
+						endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 6);
+						var dateFormat = inst.settings.dateFormat || $.datepicker._defaults.dateFormat;
+						$('#startDate').text($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
+						$('#endDate').text($.datepicker.formatDate( dateFormat, endDate, inst.settings ));
+						
+						selectCurrentWeek();
+					},
+					beforeShowDay: function(date) {
+						var cssClass = '';
+						if(date >= startDate && date <= endDate)
+							cssClass = 'ui-datepicker-current-day';
+						return [true, cssClass];
+					},
+					onChangeMonthYear: function(year, month, inst) {
+						selectCurrentWeek();
+					}
+				});
+				
+				$('.week-picker .ui-datepicker-calendar tr').live('mousemove', function() { $(this).find('td a').addClass('ui-state-hover'); });
+				$('.week-picker .ui-datepicker-calendar tr').live('mouseleave', function() { $(this).find('td a').removeClass('ui-state-hover'); });
+			});
+			
+			
+		</script>
 	</head>
 	
 	<body onload="loadDate();calculateTotal();">
@@ -228,6 +276,8 @@
 			<tr>
 				<th class="total">Month</th>
 				<td><input type="month" name="actDate" id="actDate" onchange="doReload(this.value);" value="<?php echo $actDate;?>"></td>
+				<td><input type="text" class="week-picker"></input>
+				<td><label>Week :</label> <span id="startDate"></span> - <span id="endDate"></span></td>
 			</tr>
 		</table>
 		
@@ -282,7 +332,7 @@
 					foreach ($keyArray as $key1=>$datearray) {
 						$mykeys = explode('-', $key1);
 						echo "\n";
-						echo "					<tr>";
+						echo '					<tr name="mhrow_' . $ir . '" id="mhrow_' . $ir . '">';
 						echo "\n";
 						echo '						<td class="total">';
 						echo "\n";
@@ -290,7 +340,7 @@
 						echo "\n						</td>\n";
 						
 						echo "						<td>\n";
-						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
+						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("mhProject", "prjid", "pname", $mykeys[0]). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						
@@ -334,26 +384,39 @@
 						$ic = 0;
 						
 					}
-
-					do {
+					
+					$lastrow = 0;
+					
+					if ($ir < 5) {
+						$lastrow = 5;
+					} else {
+						$lastrow = $ir + 1;
+					}
+					
+					
+					while($ir <= $lastrow) {
 						// Adding default blank row at end
 						echo "\n";
-						echo '					<tr id="clonerow">';
+						if($ir == $lastrow) {
+							echo '					<tr style="display:none" id="clonerow" name="clonerow" >';
+						} else {
+							echo '					<tr name="mhrow_' . $ir . '" id="mhrow_' . $ir . '">';
+						}
 						echo "\n";
 						echo '						<td class="total">';
 						echo "\n";
 						echo '							<input type="checkbox"  ' . $disabled. ' onchange="toggleDelete(this);" name="deleteChkBx"_' . $ir . '" id="deleteChkBx_' . $ir . '">';
 						echo "\n						</td>\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onchange="enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("mhProject", "prjid", "pname", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onchange="populateActDrpDwn(this);enableHoursOnRow(this);"  style="width: 95px" name="deptId_' . $ir . '" id="deptId_' . $ir . '">' . createDropDownString("Department", "deptid", "dept", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="populateActDrpDwn(this);checkDuplicateRow(this);enableHoursOnRow(this);"  style="width: 95px" name="deptId_' . $ir . '" id="deptId_' . $ir . '">' . createDropDownString("Department", "deptid", "dept", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onchange="enableHoursOnRow(this);" style="width:100px" name="activityId_' . $ir . '" id="activityId_' . $ir . '">' .  createDropDownString("Activity", "actid", "Activity", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this);enableHoursOnRow(this);" style="width:100px" name="activityId_' . $ir . '" id="activityId_' . $ir . '">' .  createDropDownString("Activity", "actid", "Activity", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 					
@@ -381,7 +444,7 @@
 						echo "\n";
 						$ir = $ir + 1;
 						$ic = 0;
-					} while ($ir < 5);
+					}
 					
 					// for each day in month add total column
 					echo '						<th class="total" align="right" colspan="4">Total&nbsp;&nbsp;</th>';

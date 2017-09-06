@@ -110,7 +110,7 @@ function enableHoursOnRow(a) {
 	var prjId = document.getElementById("prjId_" + rowid).value;
 	var deptId = document.getElementById("deptId_" + rowid).value;
 	var activityId = document.getElementById("activityId_" + rowid).value;
-alert("activity id-"+activityId);	
+
 	if(prjId != "" && deptId != "" && activityId != "") {
 		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = false;
@@ -118,11 +118,38 @@ alert("activity id-"+activityId);
 	}
 }
 
+function checkDuplicateRow(a) {
+	var dropdownId = a.id;
+	var temp = dropdownId.split("_");
+	var rowid = temp[1];
+
+	var prjId = document.getElementById("prjId_" + rowid).value;
+	var deptId = document.getElementById("deptId_" + rowid).value;
+	var activityId = document.getElementById("activityId_" + rowid).value;
+
+	
+	for (i = 0; i < document.getElementById("noofrows").value; i++) {
+		if(i != rowid) {
+			var tempprj = document.getElementById("prjId_" + i).value;
+			var tempdept = document.getElementById("deptId_" + i).value;
+			var tempact = document.getElementById("activityId_" + i).value;
+			if((tempprj == prjId) && (tempdept == deptId) && (tempact == activityId)) {
+				alert("Project, Department, Activity combination already present");
+				a.value = a.oldvalue;
+			}
+		}
+	}
+	a.oldvalue = a.value;
+}
+
+
 function cloneRow() {
 	var table = document.getElementById("hourtable");
 	var rowcount = parseInt(document.getElementById("noofrows").value);
 	var row = table.insertRow(rowcount + 2);
 	var row2 = document.getElementById("clonerow");
+	row.id = "mhrow_"+rowcount;
+	row.name = "mhrow_"+rowcount;
 	for (i = 0; i < row2.cells.length; i++) {
 		var cell1 = row.insertCell(i);
 		cell1.innerHTML = row2.cells[i].innerHTML;
@@ -165,14 +192,16 @@ function toggleDelete(a) {
 function deleteSelectedRows() {
 	var rowcount = parseInt(document.getElementById("noofrows").value);
 	for (i = 0; i < rowcount; i++) {
-		if(document.getElementById("deleteChkBx_" + i).checked) {
+		if(document.getElementById("deleteChkBx_" + i).checked) {	
+			//document.getElementById("mhrow_" + i).hidden = true; // remove the row by hidden=true for the tr of row
+			document.getElementById("mhrow_" + i).style.display = "none"; // remove the row by style.display="none" for the tr of row
 			document.getElementById("deleteChkBx_" + i).disabled = true;
 			for (j = 0; j < document.getElementById("daysInMonth").value; j++) {
 				document.getElementById("hour_" + i + "_" + j).disabled = true;
 				if(document.getElementById("hour_" + i + "_" + j).value != "") {
 					document.getElementById("modifiedHourFlg_" + i + "_" + j).value = true;
 				}
-			}						
+			}	
 		}
 	}
 }

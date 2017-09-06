@@ -243,7 +243,7 @@ class Database {
 	// Function to return dropdown string
 	function createDropDownString($table, $column1, $column2, $selectString){
 		$db = new Database();	// open database
-		$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table;
+		$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table . " order by " . $column1 . ";";
 		$rows = $db->select($sql);
 		if ($db->getError() != "") {
 			echo $db->getError();
