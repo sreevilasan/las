@@ -62,7 +62,7 @@ if (!$_SESSION['username']) {
 			<button class="dropbtn" onclick="meraFunction('manhourDropdown')">Manhour</button>
 			<div class="dropdown-content" id="manhourDropdown">
 				<a href="ManHours.php">Employee Manhours (Timesheet Entry)</a> 
-				<a href="ApproveManhour.php">Approve Timesheet</a>
+				<a href="ManHours.php?view=approver">Approve Timesheet</a>
 				<a href="TimesheetStatus.php">Timesheet Status</a>
 				<a href="HolidayList.php">Holiday List</a>
 			</div>

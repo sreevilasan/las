@@ -90,8 +90,22 @@ function daysInMonth(anyDateInMonth) {
 */
 
 function doReload(actDate){	
+	var view = document.getElementById("view").value;
+	if(view == "approver") {
+		var subemp = document.getElementById("subemp").value;
+		var reloadurl = document.getElementById("mhourform").action;
+		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;	
+	} else {
+		var reloadurl = document.getElementById("mhourform").action;
+		document.location = reloadurl + '?actDate=' + actDate;
+	}
+}
+
+function doReloadEmployee(a){
+	var actDate = document.getElementById("actDate").value;
+	var subemp = a.value;
 	var reloadurl = document.getElementById("mhourform").action;
-	document.location = reloadurl + '?actDate=' + actDate;
+	document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;
 }
 
 function enableDropdowns() {
@@ -222,10 +236,26 @@ function submitHours() {
 }
 
 function approveHours() {
+	var txt;
+alert(document.getElementById("mhourform").action);
+	document.getElementById("isApproved").value = true;
+	enableDropdowns();
+	document.getElementById("mhourform").submit();
+	txt = "Manhours approved";
+	// send mail to Employee
+
 	//alert(txt);
 }
 
 function rejectHours() {
+	var txt;
+
+	document.getElementById("isRejected").value = true;
+	enableDropdowns();
+	document.getElementById("mhourform").submit();
+	txt = "Manhours approved";
+	// send mail to Employee
+
 	//alert(txt);
 }
 

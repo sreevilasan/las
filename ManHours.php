@@ -8,6 +8,8 @@
 	require 'include/commonclass.php';
 	require 'include/Header.php';
 	
+	$approver = $EmpId;
+	
 	$table = 'empmh';
 		
 	// get date from request get variables
@@ -15,9 +17,50 @@
 	$month = "";
 	$year = "";
 	
+	$view = $_GET['view']; 
+	
+	if($view == "approver") {
+		
+		$sql3 = "select empid, name from employee where manager = " . $approver . " and empid != " . $approver . ";";
+		
+		$db3 = new Database();
+		$emprows = $db3->select($sql3);
+		if ($db3->getError() != "") {
+			echo $db3->getError();
+			exit();
+		}
+
+		$empcount = 0;
+		$EmpId = "";
+		foreach ($emprows as $emprow) {
+			//echo '<option value="' . $emprow['empid'] . '">' . $emprow['name'] . '</option>';
+			$emparray[$empcount] = $emprow['empid'];
+			$empcount = $empcount + 1;
+			if($emprow['empid'] == $_GET['EmpId']) {
+				$EmpId=$_GET['EmpId']; 
+			}
+		}
+		$db3->close();
+		
+		if($_GET['EmpId'] == "" || $EmpId == "") {
+			$EmpId = $emparray[0]; 
+		}
+		
+		if ($EmpId == "") {
+			echo "No timesheets to approve";
+			exit();
+		}
+		
+	}
+
+	
+	
+	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		echo "Loaded via Posting method</br>";
-		$actDate=$_POST['actDate']; 
+		$actDate=$_POST['actDate'];
+		$view = $_POST['view'];	
+			
 		//echo "Date :" . $actDate;
 	}
 
@@ -57,75 +100,102 @@
 		//echo "No of rows" . $_POST['noofrows'];
 
 		//print_r($_POST);
+		$db2 = new Database();
 
-		$isqlId = 0;
-		$dsqlId = 0;
-		for( $i = 0; $i < $_POST['noofrows']; $i++ ) {
-			$prjId = $_POST['prjId_'.$i.''];
-			$deptId = $_POST['deptId_'.$i.''];
-			$activityId = $_POST['activityId_'.$i.''];
+		if($view != "approver") {
 		
-			for( $j = 0; $j < $daysInMonth; $j++ ) {				
-				if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] != "") {  
-					$hour = $_POST['hour_'.$i.'_'.$j.''];
-					//echo "Hour :" . $hour;
-					
-					$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
-					echo $deletesql[$dsqlId] . "</br>";
-					$dsqlId++;
-					
-					$insertsql[$isqlId] = "INSERT INTO empmh (empId, prjId, deptId, actId, mdate,mhours,status) VALUES (" . $EmpId . ", " . $prjId . ", " . $deptId . ", " . $activityId . ", STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d'), " . $hour . ", 'S');";
-					echo $insertsql[$isqlId] . "</br>";
-					$isqlId++;
-					
+			$isqlId = 0;
+			$dsqlId = 0;
+			for( $i = 0; $i < $_POST['noofrows']; $i++ ) {
+				$prjId = $_POST['prjId_'.$i.''];
+				$deptId = $_POST['deptId_'.$i.''];
+				$activityId = $_POST['activityId_'.$i.''];
+			
+				for( $j = 0; $j < $daysInMonth; $j++ ) {				
+					if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] != "") {  
+						$hour = $_POST['hour_'.$i.'_'.$j.''];
+						//echo "Hour :" . $hour;
+						
+						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
+						echo $deletesql[$dsqlId] . "</br>";
+						$dsqlId++;
+						
+						$insertsql[$isqlId] = "INSERT INTO empmh (empId, prjId, deptId, actId, mdate,mhours,status) VALUES (" . $EmpId . ", " . $prjId . ", " . $deptId . ", " . $activityId . ", STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d'), " . $hour . ", 'S');";
+						echo $insertsql[$isqlId] . "</br>";
+						$isqlId++;
+						
 
-				}	else if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] == "") {
-					$hour = $_POST['hour_'.$i.'_'.$j.''];
-					//echo "Hour :" . $hour;
-					
-					$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
-					echo $deletesql[$dsqlId] . "</br>";
-					$dsqlId++;
+					}	else if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] == "") {
+						$hour = $_POST['hour_'.$i.'_'.$j.''];
+						//echo "Hour :" . $hour;
+						
+						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
+						echo $deletesql[$dsqlId] . "</br>";
+						$dsqlId++;
+					}
 				}
 			}
-		}
-		
-		$db2 = new Database();
-		
-		foreach ($deletesql as $dsql) {
-			$db2->query($dsql);
-			if ($db2->getError() != "") {
-				echo $db2->getError();
-				exit();
-			}
-		}			
-
-		foreach ($insertsql as $isql) {
-			$db2->query($isql);
-			if ($db2->getError() != "") {
-				echo $db2->getError();
-				exit();
-			}
-		}
-		
-		// submit - update status
-		$submitted = $_POST['isSubmit'];
-		echo "posted:".$submitted;
-		if($submitted == "true") {
-			$submitInsertQuery = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
 			
-			$db2->query($submitInsertQuery);
-			if ($db2->getError() != "") {
-				echo $db2->getError();
-				exit();
+			
+			
+			foreach ($deletesql as $dsql) {
+				$db2->query($dsql);
+				if ($db2->getError() != "") {
+					echo $db2->getError();
+					exit();
+				}
+			}			
+
+			foreach ($insertsql as $isql) {
+				$db2->query($isql);
+				if ($db2->getError() != "") {
+					echo $db2->getError();
+					exit();
+				}
 			}
+			
+			// submit - update status
+			$submitted = $_POST['isSubmit'];
+			//echo "posted:".$submitted;
+			if($submitted == "true") {
+				$submitInsertQuery = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
+				
+				$db2->query($submitInsertQuery);
+				if ($db2->getError() != "") {
+					echo $db2->getError();
+					exit();
+				}
+			}
+		
+		} else {
+			$EmpId = $_POST['subemp'];
+			// submit - update status
+			$approved = $_POST['isApproved'];
+			$rejected = $_POST['isRejected'];
+			//echo "posted:".$approved.$rejected;
+			if($approved == "true" || $rejected == "true") {
+				if($approved == "true") {
+					$aStatus = "A";
+				} else {
+					$aStatus = "R";
+				}
+				
+				$approveUpdateQuery = "update tssubmit set status = '" . $aStatus . "', adate = STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d') where empid = " . $EmpId . " and tdate = STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d');";
+
+				$db2->query($approveUpdateQuery);
+				if ($db2->getError() != "") {
+					echo $db2->getError();
+					exit();
+				}
+			}
+		
 		}
 		
 		$db2->close();
 	}
 
 	$db = new Database();	// open database
-	
+
 	// querying tssubmit table and check if timesheet submitted for that month
 	$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 	$row = $db->select($sql, [], true);
@@ -153,12 +223,21 @@
 	
 	// disable cells 
 	$disabled = "";
-	if ($status == "S" || $status == "A") {
+	if ($status == "S" || $status == "A" || $view == "approver") {
 		$disabled = "disabled";
 	}
+	
 	$buttonClass = 'class="button cmdbutton"';
 	if ($status == "S" || $status == "A") {
 		$buttonClass = 'class="button cmdbutton1"';
+	}
+	
+	if($view == "approver") {
+		if ($status == "S") {
+			$buttonClass = 'class="button cmdbutton"';
+		} else {
+			$buttonClass = 'disabled class="button cmdbutton1"';
+		}
 	}
 		
 	// querying empmh table and getting all records for particular month
@@ -273,6 +352,52 @@
 	
 		<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="mhourform" onsubmit="enableDropdowns();"> 
 		<br>
+		<?php
+		if($view == "approver") {
+		?>
+		
+		<table border="1" align="left">
+			<tr>
+				<th class="total">Select Employee</th>
+				<td>
+					<select id="subemp" name="subemp" onchange="doReloadEmployee(this);">
+					<?php
+
+						$sql3 = "select empid, name,  (select status from tssubmit where empid = a.empid and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d')) as status from employee a where manager = " . $approver . " and empid != " . $approver . ";";
+
+						$db3 = new Database();
+						$emprows = $db3->select($sql3);
+						if ($db3->getError() != "") {
+							echo $db3->getError();
+							exit();
+						}
+
+						foreach ($emprows as $emprow) {
+							if ($emprow['status'] == "A") {
+								$statusSymbol = "✔";
+							} else if ($emprow['status'] == "R"){
+								$statusSymbol = "✘";
+							} else if ($emprow['status'] == "S") {
+								$statusSymbol = "+";
+							} else {
+								$statusSymbol = "-";
+							}
+							
+							if ($EmpId == $emprow['empid']) {
+								echo '<option selected value="' . $emprow['empid'] . '">' . $statusSymbol . ' ' . $emprow['name'] . '</option>';
+							} else {
+								echo '<option value="' . $emprow['empid'] . '">' . $statusSymbol . ' ' . $emprow['name'] . '</option>';
+							}
+						}
+						$db3->close();
+					?>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<?php
+		}
+		?>
 		<table border="1" align="center">
 			<tr>
 				<th class="total">Month</th>
@@ -469,7 +594,13 @@
 					echo "\n";
 					echo '				<input type="hidden" name="isSubmit" id="isSubmit" value=false>';
 					echo "\n";
+					echo '				<input type="hidden" name="isApproved" id="isApproved" value=false>';
+					echo "\n";
+					echo '				<input type="hidden" name="isRejected" id="isRejected" value=false>';
+					echo "\n";
 					echo '				<input type="hidden" name="dataModified" id="dataModified" value=false>';
+					echo "\n";
+					echo '				<input type="hidden" name="view" id="view" value=' . $view . '>';
 					echo "\n";
 				?>
 			</div>
@@ -477,11 +608,24 @@
 
 		<table border="0" align="left">
 			<tr>
+			<?php
+				if ($view == "approver") {
+			?>
+				<td><button <?php echo $buttonClass; ?> type="button" value="Approve" onclick="approveHours();">Approve</button></td>
+				<td><button <?php echo $buttonClass; ?> type="button" value="Reject" onclick="rejectHours();">Reject</button></td>
+
+			<?php
+				} else {
+			?>	
 				<td><button <?php echo $disabled." ".$buttonClass; ?> type="button" value="Delete" onclick="deleteSelectedRows();">Delete Selected</button></td>
 				<td><button <?php echo $disabled." ".$buttonClass; ?> type="button" value="Add" onclick="cloneRow();">Add a New Row</button></td>
 				<td><button <?php echo $disabled." ".$buttonClass; ?> type="submit" form="mhourform" value="Save">Save</button></td>
 				<td><button <?php echo $disabled." ".$buttonClass; ?> type="button" value="Submit" onclick="submitHours();">Submit for Approval</button></td>
+			<?php
+				}
+			?>
 				<td><button class="button cmdbutton" type="button" value="Quit" onclick="quitWithoutSaving();">Quit</button></td>
+
 			</tr>
 		</table>
 	</body>
