@@ -5,7 +5,7 @@
 	ModificationDate	Description 				ChangedBy
 	26-Aug-2017			PDO inserted				Sreevilasan K
 */
-//test
+
 $config = parse_ini_file('../../las/Database.ini');
 
 $host="localhost"; // Host name 
