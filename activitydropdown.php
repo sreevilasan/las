@@ -21,11 +21,12 @@
 		// echo $db->getError();		
 		// exit();
 	}
+	
 	foreach ($rows as $row) {
 		// key="p-d-a"; if (key in keyArray) skip next statement
 		echo '<option value="' . $row['actNo'] . '">' . $row['activity'] . '</option>';
 	}
-			
+	
 	$db->close(); 	// close database connection
 
 ?>

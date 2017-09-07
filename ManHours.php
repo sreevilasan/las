@@ -239,14 +239,15 @@
 				$('.week-picker').datepicker( {
 					showOtherMonths: true,
 					selectOtherMonths: true,
+					 firstDay: 1 ,
 					onSelect: function(dateText, inst) { 
 						var date = $(this).datepicker('getDate');
-						startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
-						endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 6);
+						startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 1);
+						endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 7);
 						var dateFormat = inst.settings.dateFormat || $.datepicker._defaults.dateFormat;
-						$('#startDate').text($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
-						$('#endDate').text($.datepicker.formatDate( dateFormat, endDate, inst.settings ));
-						
+						//$('#startDate').text($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
+						//$('#endDate').text($.datepicker.formatDate( dateFormat, endDate, inst.settings ));
+						$('#weekpicker').val($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
 						selectCurrentWeek();
 					},
 					beforeShowDay: function(date) {
@@ -260,8 +261,8 @@
 					}
 				});
 				
-				$('.week-picker .ui-datepicker-calendar tr').live('mousemove', function() { $(this).find('td a').addClass('ui-state-hover'); });
-				$('.week-picker .ui-datepicker-calendar tr').live('mouseleave', function() { $(this).find('td a').removeClass('ui-state-hover'); });
+				$('.ui-datepicker-calendar tr').live('mousemove', function() { $(this).find('td a').addClass('ui-state-hover'); });
+				$('.ui-datepicker-calendar tr').live('mouseleave', function() { $(this).find('td a').removeClass('ui-state-hover'); });
 			});
 			
 			
@@ -276,8 +277,7 @@
 			<tr>
 				<th class="total">Month</th>
 				<td><input type="month" name="actDate" id="actDate" onchange="doReload(this.value);" value="<?php echo $actDate;?>"></td>
-				<td><input type="text" class="week-picker"></input>
-				<td><label>Week :</label> <span id="startDate"></span> - <span id="endDate"></span></td>
+				<td><input type="text" class="week-picker" id="weekpicker"></input>
 			</tr>
 		</table>
 		
@@ -340,7 +340,7 @@
 						echo "\n						</td>\n";
 						
 						echo "						<td>\n";
-						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("mhProject", "prjid", "pname", $mykeys[0]). "\n" . '							</select>';
+						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						
@@ -408,7 +408,7 @@
 						echo '							<input type="checkbox"  ' . $disabled. ' onchange="toggleDelete(this);" name="deleteChkBx"_' . $ir . '" id="deleteChkBx_' . $ir . '">';
 						echo "\n						</td>\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("mhProject", "prjid", "pname", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						echo "						<td>\n";
