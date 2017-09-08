@@ -237,9 +237,9 @@ function submitHours() {
 
 function approveHours() {
 	var txt;
-alert(document.getElementById("mhourform").action);
+//alert(document.getElementById("mhourform").action);
 	document.getElementById("isApproved").value = true;
-	enableDropdowns();
+	//enableDropdowns(); //check if needed
 	document.getElementById("mhourform").submit();
 	txt = "Manhours approved";
 	// send mail to Employee
@@ -251,7 +251,7 @@ function rejectHours() {
 	var txt;
 
 	document.getElementById("isRejected").value = true;
-	enableDropdowns();
+	//enableDropdowns();
 	document.getElementById("mhourform").submit();
 	txt = "Manhours approved";
 	// send mail to Employee

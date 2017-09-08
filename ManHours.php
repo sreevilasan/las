@@ -47,7 +47,7 @@
 		}
 		
 		if ($EmpId == "") {
-			echo "No timesheets to approve";
+			echo '<br><b><font color="red">No timesheets to approve</font></b>';
 			exit();
 		}
 		
@@ -158,9 +158,20 @@
 			$submitted = $_POST['isSubmit'];
 			//echo "posted:".$submitted;
 			if($submitted == "true") {
-				$submitInsertQuery = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
-				
-				$db2->query($submitInsertQuery);
+				$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
+				$row = $db2->select($sql, [], true);
+				if ($db2->getError() != "") {
+					echo $db->getError();
+					exit();
+				}
+						
+				if ($row['rowCount'] == "0") {
+					$submitSql = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
+				} else {
+					$submitSql = "UPDATE tssubmit SET Status='S', Sdate = STR_TO_DATE('" . date('Y-m-d') . "','%Y-%m-%d') WHERE empid=" . $EmpId . " and Tdate=STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
+				}
+							
+				$db2->query($submitSql);
 				if ($db2->getError() != "") {
 					echo $db2->getError();
 					exit();
@@ -286,6 +297,24 @@
 			return "workday";
 		}
 	}
+	
+	function getEmployeeName($eid) {
+		
+		$db = new Database();	// open database
+		
+		$sql = "select name from employee where empid =" . $eid . " limit 1 ;";
+		$row = $db->select($sql, [], true);
+		if ($db->getError() != "") {
+			echo $db->getError();
+			exit();
+		}
+		$employeeName = $row['name'];
+		
+		$db->close();
+		
+		return $employeeName;
+		
+	}
 ?>
 
 <html>
@@ -378,9 +407,9 @@
 							} else if ($emprow['status'] == "R"){
 								$statusSymbol = "✘";
 							} else if ($emprow['status'] == "S") {
-								$statusSymbol = "+";
+								$statusSymbol = "★";
 							} else {
-								$statusSymbol = "-";
+								$statusSymbol = "…";
 							}
 							
 							if ($EmpId == $emprow['empid']) {
@@ -412,7 +441,8 @@
 			</font></td></tr>
 		</table>
 		
-		<br><br>
+		<h1>Timesheet of <font color="blue"><?php echo getEmployeeName($EmpId); ?></font></h1>
+		
 		<div style="overflow-y: auto;" > <!-- div added for putting scroll bar on table-->
 			<table border="3" align="left" id="hourtable">
 				<tr class="table table1">
@@ -465,7 +495,7 @@
 						echo "\n						</td>\n";
 						
 						echo "						<td>\n";
-						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
+						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						
@@ -533,7 +563,7 @@
 						echo '							<input type="checkbox"  ' . $disabled. ' onchange="toggleDelete(this);" name="deleteChkBx"_' . $ir . '" id="deleteChkBx_' . $ir . '">';
 						echo "\n						</td>\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("Project", "prjid", "name", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("project", "prjid", "name", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						echo "						<td>\n";

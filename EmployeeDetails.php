@@ -3,6 +3,7 @@
 <body>
 
 <?php
+	$page = "Employee";
 	// File: EmployeeDetails.php
 	// 
 	
