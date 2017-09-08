@@ -297,9 +297,9 @@
 </style>
 		<link rel="stylesheet" href="css/manhour.css">
 		<script src="manhour.js"></script>
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
-		<link rel="stylesheet" type="text/css" media="screen" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css">
+		<script src="jquery.js"></script>
+		<script type="text/javascript" src="jquery-ui.min.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="jquery-ui.css">
 		<script type="text/javascript">
 
 				
