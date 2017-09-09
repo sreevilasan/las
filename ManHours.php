@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <?php
-	// File: Manhours.php
+	// File: Manhours.php 
 	// 
 	//error_log("test", 3, "C:\myfolder\php_errors.log");
 	
@@ -8,12 +8,14 @@
 	require 'include/commonclass.php';
 	require 'include/Header.php';
 	
+
 	$approver = $EmpId;
 	
 	$table = 'empmh';
 		
 	// get date from request get variables
 	$actDate=$_GET['actDate']; 
+	$startDate=$_GET['startDate']; 
 	$month = "";
 	$year = "";
 	
@@ -63,24 +65,33 @@
 			
 		//echo "Date :" . $actDate;
 	}
-
+// update for week
 	// check if month has been selected by user, else default month to current month
 	if ($actDate != null) {
-		$daysInMonth = cal_days_in_month(CAL_GREGORIAN,substr($actDate, 5, 2),substr($actDate,0, 4));
+		$daysInPeriod = cal_days_in_month(CAL_GREGORIAN,substr($actDate, 5, 2),substr($actDate,0, 4));
 		$month = substr($actDate, 5, 2);
 		$year = substr($actDate,0, 4);
+		$startDateDD = substr($startDate, 3, 2);
 	} else {
-		$daysInMonth = date('t');
+		$daysInPeriod = date('t');
 		$month = date('m');
 		$year = date('Y');
 		$actDate = date('Y') . "-" . date('m');
+		$dayofweek = date('w') - 1;
+		$weekStart = date('m-d-Y', strtotime('-'.$dayofweek.' days'));
+		$startDate = substr($weekStart, 0, 2) . "/" . substr($weekStart, 3, 2) . "/" . substr($weekStart, 6, 4);
+		$weekEnd= date('m-d-Y', strtotime('-'.($dayofweek - 6).' days'));
+		$EndDate = substr($weekEnd, 0, 2) . "/" . substr($weekEnd, 3, 2) . "/" . substr($weekEnd, 6, 4);
+		$startDateDD = substr($startDate, 3, 2);
 	}
-	
+
+	$daysInPeriod = 7;
 	// get holidays in the current month 
 	$holidayList = null;
-		
+	
+// update for week		
 	$db = new Database();	// open database
-	$sql = "select DATE_FORMAT(hdate, '%d') as hday from holiday where hdate >= STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') and hdate < STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') + " . $daysInMonth; 
+	$sql = "select DATE_FORMAT(hdate, '%d') as hday from holiday where hdate >= STR_TO_DATE('" . $year . "-" . $month . "-" . $startDateDD . "','%Y-%m-%d') and hdate < STR_TO_DATE('" . $year . "-" . $month . "-" . $startDateDD . "','%Y-%m-%d') + " . $daysInPeriod; 
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {
@@ -111,7 +122,7 @@
 				$deptId = $_POST['deptId_'.$i.''];
 				$activityId = $_POST['activityId_'.$i.''];
 			
-				for( $j = 0; $j < $daysInMonth; $j++ ) {				
+				for( $j = 0; $j < $daysInPeriod; $j++ ) {				
 					if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] != "") {  
 						$hour = $_POST['hour_'.$i.'_'.$j.''];
 						//echo "Hour :" . $hour;
@@ -158,6 +169,7 @@
 			$submitted = $_POST['isSubmit'];
 			//echo "posted:".$submitted;
 			if($submitted == "true") {
+// update for week
 				$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 				$row = $db2->select($sql, [], true);
 				if ($db2->getError() != "") {
@@ -190,7 +202,8 @@
 				} else {
 					$aStatus = "R";
 				}
-				
+
+// update for week				
 				$approveUpdateQuery = "update tssubmit set status = '" . $aStatus . "', adate = STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d') where empid = " . $EmpId . " and tdate = STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d');";
 
 				$db2->query($approveUpdateQuery);
@@ -206,7 +219,8 @@
 	}
 
 	$db = new Database();	// open database
-
+	
+// update for week
 	// querying tssubmit table and check if timesheet submitted for that month
 	$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 	$row = $db->select($sql, [], true);
@@ -253,10 +267,10 @@
 		
 	// querying empmh table and getting all records for particular month
 	$keyArray = null;
-	
+// update for week	
 	$sql = "SELECT mid, DATE_FORMAT(mdate, '%d') as mday, concat(Prjid ,'-' ,DeptId, '-', ActId) as key1 , mhours FROM " . $table;
 	$sql .= " where EmpId=" . $EmpId . " and mdate >= STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d')";
-	$sql .= " and mdate < STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') + " . $daysInMonth; 
+	$sql .= " and mdate < STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') + " . $daysInPeriod; 
 		
 	$rows = $db->select($sql);
 	if ($db->getError() != "") {
@@ -355,8 +369,9 @@
 						var dateFormat = inst.settings.dateFormat || $.datepicker._defaults.dateFormat;
 						//$('#startDate').text($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
 						//$('#endDate').text($.datepicker.formatDate( dateFormat, endDate, inst.settings ));
-						$('#weekpicker').val($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
+						$('#startDate').val($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
 						selectCurrentWeek();
+						$(this).change();
 					},
 					beforeShowDay: function(date) {
 						var cssClass = '';
@@ -391,7 +406,7 @@
 				<td>
 					<select id="subemp" name="subemp" onchange="doReloadEmployee(this);">
 					<?php
-
+// update for week
 						$sql3 = "select empid, name,  (select status from tssubmit where empid = a.empid and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d')) as status from employee a where manager = " . $approver . " and empid != " . $approver . ";";
 
 						$db3 = new Database();
@@ -431,7 +446,7 @@
 			<tr>
 				<th class="total">Month</th>
 				<td><input type="month" name="actDate" id="actDate" onchange="doReload(this.value);" value="<?php echo $actDate;?>"></td>
-				<td><input type="text" class="week-picker" id="weekpicker"></input>
+				<td><input type="text" class="week-picker" id="startDate" name="startDate" onchange="doReloadStartDate(this.value);" value="<?php echo $startDate;?>"></input></td>
 			</tr>
 		</table>
 		
@@ -452,8 +467,9 @@
 					<th align="centre" rowspan="2">Activity</th>
 					<?php	
 						echo "\n";
+// update for week
 						// for each day in month display day of the month
-						for( $i = 1; $i <= $daysInMonth; $i++ ) {
+						for( $i = 1; $i <= $daysInPeriod; $i++ ) {
 							$idate = $year."-".$month."-".$i;
 							$day = date("D",strtotime($idate));
 							echo '					<th>';
@@ -469,7 +485,7 @@
 				</tr>
 				<tr class="table table1">
 					<?php
-						for( $i = 1; $i <= $daysInMonth; $i++ ) {
+						for( $i = 1; $i <= $daysInPeriod; $i++ ) {
 							echo "\n";
 							echo "					<th>" . $i . "</th>";
 						}			
@@ -510,7 +526,7 @@
 						echo "\n";
 						
 						// for each day in month add hour column
-						for( $i = 1; $i <= $daysInMonth; $i++ ) {
+						for( $i = 1; $i <= $daysInPeriod; $i++ ) {
 							$tempHour = "";
 							foreach ($datearray as $date=>$hour) {
 								// if day equal to date fetched from database set the hours fetched from database 
@@ -576,7 +592,7 @@
 						echo "\n";
 					
 						// for each day in month add hour column
-						for( $i = 1; $i <= $daysInMonth; $i++ ) {
+						for( $i = 1; $i <= $daysInPeriod; $i++ ) {
 							$tempHour = "";
 
 							//echo '				<td><input style="width: 57px; padding: 2px" type="number" step="any" min="0" max="24" name="hours" id="' . "key" . '-' . $i . '" value="' . $tempHour . '"></td>';
@@ -605,7 +621,7 @@
 					echo '						<th class="total" align="right" colspan="4">Total&nbsp;&nbsp;</th>';
 					echo "\n";
 					
-					for( $i = 1; $i <= $daysInMonth; $i++ ) {
+					for( $i = 1; $i <= $daysInPeriod; $i++ ) {
 						echo '						<td><input class="holiday" disabled style="width: 30px; padding: 2px" type="text" name="colTotal_' . ($i - 1) . '" id="colTotal_' . ($i - 1) .'"></td>';
 						echo "\n";
 					}
@@ -620,7 +636,7 @@
 					echo "\n";
 					echo '				<input type="hidden" name="noofrows" id="noofrows" value=' . ($ir) .'>';
 					echo "\n";
-					echo '				<input type="hidden" name="daysInMonth" id="daysInMonth" value=' . ($daysInMonth) .'>';
+					echo '				<input type="hidden" name="daysInPeriod" id="daysInPeriod" value=' . ($daysInPeriod) .'>';
 					echo "\n";
 					echo '				<input type="hidden" name="isSubmit" id="isSubmit" value=false>';
 					echo "\n";

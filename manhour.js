@@ -38,7 +38,7 @@ function calculateTotal(){
 		rowId = 'rowTotal_' + j;
 
 		var rowSum = 0;
-		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
+		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
 
 			hourId = 'hour_' + j + '_' + i; 
 
@@ -49,7 +49,7 @@ function calculateTotal(){
 		document.getElementById(rowId).value = rowSum;
 	}	
 	
-	for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
+	for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
 		colId = 'colTotal_'+ i;
 		var colSum = 0;
 		for (j = 0; j < document.getElementById("noofrows").value; j++) {
@@ -62,7 +62,7 @@ function calculateTotal(){
 	}
 	
 	var grandSum = 0;
-	for (j = 0; j < document.getElementById("daysInMonth").value; j++) {
+	for (j = 0; j < document.getElementById("daysInPeriod").value; j++) {
 		colId = 'colTotal_' + j;
 		grandSum += parseInt(document.getElementById(colId).value);
 	}
@@ -83,21 +83,31 @@ function checkTotal(a) {
 	}
 }
 
-/*
-function daysInMonth(anyDateInMonth) {
-	return new Date(anyDateInMonth.getYear(), anyDateInMonth.getMonth()+1,0).getDate();
-}
-*/
-
 function doReload(actDate){	
 	var view = document.getElementById("view").value;
+	var startDate = document.getElementById("startDate").value;
+	
 	if(view == "approver") {
 		var subemp = document.getElementById("subemp").value;
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;	
+		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp + '&startDate=' + startDate;	
 	} else {
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?actDate=' + actDate;
+		document.location = reloadurl + '?actDate=' + actDate + '&startDate=' + startDate;
+	}
+}
+
+function doReloadStartDate(startDate){	
+	var view = document.getElementById("view").value;
+	var actDate = document.getElementById("actDate").value;
+	
+	if(view == "approver") {
+		var subemp = document.getElementById("subemp").value;
+		var reloadurl = document.getElementById("mhourform").action;
+		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp + '&startDate=' + startDate;	
+	} else {
+		var reloadurl = document.getElementById("mhourform").action;
+		document.location = reloadurl + '?actDate=' + actDate + '&startDate=' + startDate;
 	}
 }
 
@@ -126,7 +136,7 @@ function enableHoursOnRow(a) {
 	var activityId = document.getElementById("activityId_" + rowid).value;
 
 	if(prjId != "" && deptId != "" && activityId != "") {
-		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
+		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = false;
 		}
 	}
@@ -193,11 +203,11 @@ function toggleDelete(a) {
 	var rowid = temp[1];
 	
 	if(a.checked) {
-		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
+		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = true;
 		}
 	} else {
-		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
+		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = false;
 		}
 	}
@@ -210,7 +220,7 @@ function deleteSelectedRows() {
 			//document.getElementById("mhrow_" + i).hidden = true; // remove the row by hidden=true for the tr of row
 			document.getElementById("mhrow_" + i).style.display = "none"; // remove the row by style.display="none" for the tr of row
 			document.getElementById("deleteChkBx_" + i).disabled = true;
-			for (j = 0; j < document.getElementById("daysInMonth").value; j++) {
+			for (j = 0; j < document.getElementById("daysInPeriod").value; j++) {
 				document.getElementById("hour_" + i + "_" + j).disabled = true;
 				if(document.getElementById("hour_" + i + "_" + j).value != "") {
 					document.getElementById("modifiedHourFlg_" + i + "_" + j).value = true;
