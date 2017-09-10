@@ -4,8 +4,8 @@ Description: Contains all javascript functions for manhours page
 */
 
 function loadDate() {
-	if (document.getElementById("actDate").value == "") {
-		document.getElementById("actDate").valueAsDate = new Date();
+	if (document.getElementById("startDate").value == "") {
+		document.getElementById("startDate").valueAsDate = new Date();
 	}
 	
 }
@@ -33,7 +33,7 @@ function updateModifiedFlag(a){
 	document.getElementById('dataModified').value = true;
 }
 
-function calculateTotal(){				
+function calculateTotal(){	
 	for (j = 0; j < document.getElementById("noofrows").value; j++) {
 		rowId = 'rowTotal_' + j;
 
@@ -43,7 +43,7 @@ function calculateTotal(){
 			hourId = 'hour_' + j + '_' + i; 
 
 			if (document.getElementById(hourId).value != "") {
-				rowSum += parseInt(document.getElementById(hourId).value);
+				rowSum += parseFloat(document.getElementById(hourId).value);
 			}
 		}	
 		document.getElementById(rowId).value = rowSum;
@@ -55,7 +55,7 @@ function calculateTotal(){
 		for (j = 0; j < document.getElementById("noofrows").value; j++) {
 			hourId = 'hour_' + j + '_' + i; 
 			if (document.getElementById(hourId).value != "") {
-				colSum += parseInt(document.getElementById(hourId).value);
+				colSum += parseFloat(document.getElementById(hourId).value);
 			}
 		}
 		document.getElementById(colId).value = colSum;
@@ -64,7 +64,7 @@ function calculateTotal(){
 	var grandSum = 0;
 	for (j = 0; j < document.getElementById("daysInPeriod").value; j++) {
 		colId = 'colTotal_' + j;
-		grandSum += parseInt(document.getElementById(colId).value);
+		grandSum += parseFloat(document.getElementById(colId).value);
 	}
 	document.getElementById("grandTotal").value = grandSum;
 }
@@ -83,6 +83,7 @@ function checkTotal(a) {
 	}
 }
 
+/*
 function doReload(actDate){	
 	var view = document.getElementById("view").value;
 	var startDate = document.getElementById("startDate").value;
@@ -90,32 +91,32 @@ function doReload(actDate){
 	if(view == "approver") {
 		var subemp = document.getElementById("subemp").value;
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp + '&startDate=' + startDate;	
+		document.location = reloadurl + '?view=approver&EmpId=' + subemp + '&startDate=' + startDate;	
 	} else {
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?actDate=' + actDate + '&startDate=' + startDate;
+		document.location = reloadurl + '?startDate=' + startDate;
 	}
 }
-
+*/
 function doReloadStartDate(startDate){	
 	var view = document.getElementById("view").value;
-	var actDate = document.getElementById("actDate").value;
+	var actDate = document.getElementById("startDate").value;
 	
 	if(view == "approver") {
 		var subemp = document.getElementById("subemp").value;
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp + '&startDate=' + startDate;	
+		document.location = reloadurl + '?view=approver&EmpId=' + subemp + '&startDate=' + startDate;	
 	} else {
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?actDate=' + actDate + '&startDate=' + startDate;
+		document.location = reloadurl + '?startDate=' + startDate;
 	}
 }
 
 function doReloadEmployee(a){
-	var actDate = document.getElementById("actDate").value;
+	var startDate = document.getElementById("startDate").value;
 	var subemp = a.value;
 	var reloadurl = document.getElementById("mhourform").action;
-	document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;
+	document.location = reloadurl + '?view=approver&startDate=' + startDate + '&EmpId=' + subemp;
 }
 
 function enableDropdowns() {

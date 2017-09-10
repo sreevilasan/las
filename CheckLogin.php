@@ -26,6 +26,22 @@ $mypassword = stripslashes($mypassword);
 $myusername = mysqli_real_escape_string($conn2,$myusername);
 $mypassword = mysqli_real_escape_string($conn2,$mypassword);
 
+$result1=mysqli_query($conn2, "SELECT * FROM ". $dbname . "." . $table . " WHERE username='$myusername'");
+$count1=mysqli_num_rows($result1);
+
+if($count1==1){
+	
+	while ($row1 = $result1->fetch_assoc()){
+		if($row1['Password'] == "") {
+			session_start();
+			$_SESSION['username'] = $myusername;
+			header("location:changepwd.php");
+			exit;
+		}
+	}
+
+}
+
 $result=mysqli_query($conn2, "SELECT * FROM ". $dbname . "." . $table . " WHERE username='$myusername' and password='$mypassword'");
 
 // Mysql_num_row is counting table row
