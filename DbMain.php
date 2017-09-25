@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<?php
+<!--
 //  File DbMenu.php
-//
-session_start();
-$myusername = $_SESSION['username'];
-if (!$_SESSION['username']) {
-	header("location:Login.php");
-}
-?>
+//	Version 2.02
+//	Author: Sreevilasan K.
+//	Written on 14-Aug-2017
+-->
 <html>
 <head>
 	<link rel="stylesheet" href="css/dbmain.css">
+	<style>
+		.copyright {
+			position: absolute;
+			bottom: 0;
+		}
+	</style>
 </head>
 
-<body>
-	<?php require 'include/header.php'; ?>
+<body bgcolor="white">
+	<?php 
+		require 'include/sessioncheck.php';
+		require 'include/header.php'; 
+		require 'include/footer.php';
+	?>
 
 	<div class="container">
 		<a href="index.php">Home</a>
@@ -58,7 +65,7 @@ if (!$_SESSION['username']) {
 			</div>
 		</div> 
 		
-		  <div class="dropdown">
+		<div class="dropdown">
 			<button class="dropbtn" onclick="meraFunction('manhourDropdown')">Manhour</button>
 			<div class="dropdown-content" id="manhourDropdown">
 				<a href="ManHours.php">Employee Manhours (Timesheet Entry)</a> 
@@ -67,15 +74,33 @@ if (!$_SESSION['username']) {
 				<a href="HolidayList.php">Holiday List</a>
 			</div>
 		</div> 
+	
+		<div class="dropdown" <?php if ($UserRole != "DM") { echo "hidden";} ?>>
+			<button class="dropbtn" onclick="meraFunction('reportDropdown')">Reports</button>
+			<div class="dropdown-content" id="reportDropdown">
+				<a href="MR-ProjectGrade.php">Project Manhour Cost</a> 
+				<a href="MR-Summary.php">Manhour Summary</a>
+				<a href="MR-EmployeeOvertime.php">Employee Manhours</a>
+			</div>
+		</div> 
 		
-	  <div class="dropdown my">
+		<div class="dropdown" <?php if ($UserRole != "DM") { echo "hidden";} ?>>
+			<button class="dropbtn" onclick="meraFunction('DatabaseDropdown')">Database</button>
+			<div class="dropdown-content" id="DatabaseDropdown">
+				<a href="EditEmployee.php">Employee</a> 
+				<a href="EditProject.php">Project</a>
+				<a href="EditCompany.php">Company</a>
+				<a href="EditContact.php">Contact</a>
+				<a href="EditUser.php">User</a>
+			</div>
+		</div>
+
+	  <div class="dropdown">
 		<button class="dropbtn" onclick="meraFunction('myDropdown')">Help</button>
 		<div class="dropdown-content" id="myDropdown">
-			<a href="doc/employee system.mht">Employee</a>
-			<a href="doc/project system.mht">Project</a>
-			<a href="doc/company system.mht">Company</a>
-			<a href="doc/contact system.mht">Contact</a>
-			<a href="doc/document system.mht">Document</a>
+			<a href="doc/Employee Manhours.htm">Employee Manhours</a>
+			<a href="AboutLasDatabase.php">About LAS Database</a>
+
 		</div>
 	  </div> 
 		<a href="LogOut.php">Logout</a>
@@ -112,10 +137,16 @@ function meraFunction(s) {
 		document.getElementById('contactDropdown').classList.remove('show');
 	}
 	
+	if(s != 'reportDropdown') {
+		document.getElementById('reportDropdown').classList.remove('show');
+	}
+	
+	if(s != 'DatabaseDropdown') {
+		document.getElementById('DatabaseDropdown').classList.remove('show');
+	}
 	if(s != 'myDropdown') {
 		document.getElementById('myDropdown').classList.remove('show');
 	}
-
 }
 
 // Close the dropdown if the user clicks outside of it

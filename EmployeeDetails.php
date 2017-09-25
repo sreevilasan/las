@@ -15,7 +15,7 @@
 
 	$db = new Database();	// open database
 
-	$sql = 'SELECT * FROM ' . $table . ' order by EmpID;';
+	$sql = 'SELECT * FROM ' . $table . ' order by EmpNo;';
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {
@@ -24,11 +24,11 @@
 	}
 	
 	echo '<h2>Employee Details</h2><br>';
-	$bs = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+	$bs = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 	
 	foreach ($rows as $row)
 	{
-		echo ' <font color = "blue"><strong>' . $row['EmpId'] . ". ". $row['Name']. '</strong></font>';
+		echo ' <font color = "blue"><strong>' . $row['EmpNo'] . ". ". $row['Name']. '</strong></font>';
 		echo $bs . $row['Designation'];
 		echo $bs . $row['LocalAddress'];
 		echo $bs . 'Mob: ' . $row['Mobile']. '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -39,7 +39,7 @@
 		echo 'Email: ' . $email;
 			
 		//echo $bs . $row['DOB'];    
-		echo  "<br>---------------------------------------------------------------------------------------<br>";
+		echo  "<br>-----------------------------------------------------------------------------------------------------------------<br>";
 	}
 
 	$db->close();	// Close database  

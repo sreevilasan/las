@@ -8,4 +8,5 @@
 	$myUsername = $_SESSION['username'];
 	$myName = $_SESSION['Name'];
 	$EmpId = $_SESSION['EmpId'];
+	$UserRole = $_SESSION['UserRole'];
 ?>

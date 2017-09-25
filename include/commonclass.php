@@ -224,44 +224,191 @@ class Database {
     }
 }
 
-	// Function to echo dropdown code in html
-	function createDropDown($table, $column1, $column2){
-		$db = new Database();	// open database
-		$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table;
-		$rows = $db->select($sql);
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
-		}
+// Function to echo dropdown code in html
+function createDropDown($table, $column1, $column2){
+	$db = new Database();	// open database
+	$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table;
+	$rows = $db->select($sql);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
 
-		foreach ($rows as $row)
-		{
-			echo "<option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option>";
-		}
-	} 
+	foreach ($rows as $row)
+	{
+		echo "<option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option>";
+	}
+} 
+
+// Function to return dropdown string
+function createDropDownString($table, $column1, $column2, $selectString){
+	$db = new Database();	// open database
+	$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table . ";";
+	$rows = $db->select($sql);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
 	
-	// Function to return dropdown string
-	function createDropDownString($table, $column1, $column2, $selectString){
-		$db = new Database();	// open database
-		$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table . " order by " . $column1 . ";";
-		$rows = $db->select($sql);
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
+	// putting blank option at start of dropdown
+	$dropdownString = "\n								<option disabled selected></option> ";
+	
+	// Looping through query output and creating dropdown
+	foreach ($rows as $row)
+	{
+		if ($selectString == $row['' . $column1. '']) {
+			$dropdownString = $dropdownString . "\n								<option selected value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
+		} else {
+			$dropdownString = $dropdownString . "\n								<option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
 		}
-		
-		// putting blank option at start of dropdown
-		$dropdownString = "\n								<option disabled selected></option> ";
-		
-		// Looping through query output and creating dropdown
-		foreach ($rows as $row)
-		{
-			if ($selectString == $row['' . $column1. '']) {
-				$dropdownString = $dropdownString . "\n								<option selected value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
-			} else {
-				$dropdownString = $dropdownString . "\n								<option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
-			}
+	}
+	return $dropdownString;
+} 
+
+function createDropDownProject($table, $column1, $column2, $selectString){
+	$db = new Database();	// open database
+	
+	$sql = "(SELECT " . $column1 . ", concat(catagory,'-',prjno,' ',name) as " . $column2 . ", catagory, prjno FROM " . $table . " where catagory!='99' and status='On Going') UNION (SELECT " . $column1 . ", " . $column2 . ", catagory, prjno FROM " . $table . " where catagory='99') order by catagory asc, PrjNo DESC;";
+//echo "sql=".$sql; 
+
+	$rows = $db->select($sql);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	
+	// putting blank option at start of dropdown
+	$dropdownString = "\n								<option disabled selected></option> ";
+	
+	// Looping through query output and creating dropdown
+	foreach ($rows as $row)
+	{
+		if ($selectString == $row['' . $column1. '']) {
+			$dropdownString = $dropdownString . "\n								<option selected value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
+		} else {
+			$dropdownString = $dropdownString . "\n								<option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
 		}
-		return $dropdownString;
-	} 
+	}
+	
+	$db->close();
+	
+	return $dropdownString;
+} 
+
+function createDropDownEmployee($table, $column1, $column2, $selectString){		
+	$db = new Database();	// open database
+	
+	$sql = "SELECT " . $column1 . ", concat(empno,' - ',name) as " . $column2 . " FROM " . $table . " where status != 'Left' order by empno asc ;";
+
+	$rows = $db->select($sql);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	
+	// putting blank option at start of dropdown
+	$dropdownString = "\n	<option disabled selected></option> ";
+	
+	// Looping through query output and creating dropdown
+	foreach ($rows as $row)
+	{
+		if ($selectString == $row['' . $column1. '']) {
+			$dropdownString = $dropdownString . "\n	   <option selected value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
+		} else {
+			$dropdownString = $dropdownString . "\n	   <option value=\"" . $row['' . $column1. ''] . "\">" . $row['' . $column2. ''] . "</option> ";
+		}
+	}
+	
+	$db->close();
+	
+	return $dropdownString;
+} 
+
+function getProjectName($pid) {	
+	$db = new Database();	// open database
+	
+	$sql = "select catagory, prjno, name, description from project where prjid ='" . $pid . "' limit 1 ;";
+	$row = $db->select($sql, [], true);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	$projectName = $row['catagory']."-".$row['prjno']." ".$row['name'];
+	
+	$db->close();
+	
+	return $projectName;
+}
+
+function getEmployeeName($eid) {
+	
+	$db = new Database();	// open database
+	
+	$sql = "select name from employee where empid ='" . $eid . "' limit 1 ;";
+	$row = $db->select($sql, [], true);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	$employeeName = $row['name'];
+	
+	$db->close();
+	
+	return $employeeName;
+}
+
+function isaHoliday($idate) {
+	// check for public holiday
+	$db = new Database();	// open database
+	$sql = "select count(hdate) as rowCount from holiday where hdate = STR_TO_DATE('" . $idate ."','%Y-%m-%d');"; 
+	$row = $db->select($sql, [], true);	
+	
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	
+	if ($row['rowCount'] == "0") {
+		$publicHoliday = false;
+	} else {
+		$publicHoliday = true;
+	}
+
+	$db->close(); 	// close database connection
+
+	$dayName = date("D",strtotime($idate));
+	if ($dayName == "Sun" || $publicHoliday) { // if the day is weekend or holiday
+		return true;	// holiday
+	} else {
+		return false;	// not holiday
+	}
+}
+
+function getNewDate($sdate,$ndays, $dfmt) {
+	// $sdate in yyyy-mm-dd in string format
+	// $ndays is no of days starting from $sdate in integer format
+	// $dfmt is the output date format e.g "d-m-y"
+	// returns the new date in yyyy-mm-dd in string format
+	
+	$date=date_create($sdate);
+	date_add($date,date_interval_create_from_date_string($ndays . " days"));
+	$newDate = date_format($date,$dfmt);
+
+	return $newDate;
+}
+
+function getSeatNumber(){
+	$db = new Database();	// open database
+	
+	$sql = "select * from seat";
+	$row = $db->select($sql, [], true);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	
+	$db->close();
+	
+	return $employeeName;	
+}
 ?>

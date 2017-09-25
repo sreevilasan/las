@@ -10,12 +10,12 @@
 <head></head>
 <body>  
 <?php 
-	require 'include/header.php'; 
+	//require 'include/header.php'; 
 	session_start();
 	session_destroy();
-	header("location:Index.php");
+	header("location:Login.php");
 	
-	require 'include/footer.php'; 
+	//require 'include/footer.php'; 
 ?>
 </body>
 </html>

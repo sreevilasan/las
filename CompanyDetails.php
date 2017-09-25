@@ -14,7 +14,7 @@
 
 	$db = new Database();	// open database
 	
-	$sql 	= 'SELECT * FROM ' . $table . ' order by ComId;';
+	$sql 	= 'SELECT * FROM ' . $table . ' order by catagory asc, ComNo asc;';
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {

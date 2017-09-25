@@ -25,7 +25,7 @@
 	}
 	
 	echo '<h2>Project Contact Details</h2><br>';
-	$bs = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+	$bs = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 	foreach ($rows as $row)
 	{
 		echo ' <font color = "blue"><strong>' . $row['ContactId'] . ". " . '&nbsp;&nbsp;&nbsp;&nbsp;' . $row['Name'] . '</strong></font>';

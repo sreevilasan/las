@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <?php
-	// File: Manhours.php 
+	// File: Manhours.php
 	// 
 	//error_log("test", 3, "C:\myfolder\php_errors.log");
 	
@@ -8,28 +8,26 @@
 	require 'include/commonclass.php';
 	require 'include/Header.php';
 	
-
 	$approver = $EmpId;
 	
 	$table = 'empmh';
 		
 	// get date from request get variables
-	//$actDate=$_GET['actDate']; 
-	$startDate=$_GET['startDate']; 
+	$actDate=$_GET['actDate']; 
 	$month = "";
 	$year = "";
-	$day = "";
 	
 	$view = $_GET['view']; 
 	
 	if($view == "approver") {
 		
-		$sql3 = 'select empid, name from employee where manager = ' . $approver . ' and empid != ' . $approver . ' and status!="left" order by empno;';
+		$sql3 = "select empid, name from employee where manager = " . $approver . " and empid != " . $approver . ";";
 		
 		$db3 = new Database();
 		$emprows = $db3->select($sql3);
 		if ($db3->getError() != "") {
-			errorExit($EmpId,$db3->getError());
+			echo $db3->getError();
+			exit();
 		}
 
 		$empcount = 0;
@@ -54,50 +52,45 @@
 		}
 		
 	}
+
+	
+	
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
-		//echo "Loaded via Posting method</br>";
-		$startDate=$_POST['startDate'];
+		echo "Loaded via Posting method</br>";
+		$actDate=$_POST['actDate'];
 		$view = $_POST['view'];	
-	}
-	
-	if ($startDate != null) {
-		$day = substr($startDate, 3, 2);
-		$month = substr($startDate, 0, 2);
-		$year = substr($startDate,6, 4);
-		$weekStartDate = $year . "-" . $month . "-" . $day;
-	} else {
-		$dayofweek = date('w') - 1;
-		$today = date('Y-m-d');
-		$weekStart = date('m-d-Y', strtotime('-'.$dayofweek.' days'));
-		$day = substr($weekStart, 3, 2);
-		$month = substr($weekStart, 0, 2);
-		$year = substr($weekStart, 6, 4);
-		$startDate = $month . "/" . $day . "/" . $year;
-		$weekEnd= date('m-d-Y', strtotime('-'.($dayofweek - 6).' days'));
-		$EndDate = substr($weekEnd, 0, 2) . "/" . substr($weekEnd, 3, 2) . "/" . substr($weekEnd, 6, 4);
-		$day = substr($startDate, 3, 2);
-		$weekStartDate = $year . "-" . $month . "-" . $day;
+			
+		//echo "Date :" . $actDate;
 	}
 
-	$daysInPeriod = 7;
-	$dfmt="Y-m-d";
+	// check if month has been selected by user, else default month to current month
+	if ($actDate != null) {
+		$daysInMonth = cal_days_in_month(CAL_GREGORIAN,substr($actDate, 5, 2),substr($actDate,0, 4));
+		$month = substr($actDate, 5, 2);
+		$year = substr($actDate,0, 4);
+	} else {
+		$daysInMonth = date('t');
+		$month = date('m');
+		$year = date('Y');
+		$actDate = date('Y') . "-" . date('m');
+	}
 	
 	// get holidays in the current month 
 	$holidayList = null;
 		
 	$db = new Database();	// open database
-
-	$sql = "select hdate from holiday where hdate >= STR_TO_DATE('" . $weekStartDate . "','%Y-%m-%d') and hdate < STR_TO_DATE('" . getNewDate($weekStartDate,$daysInPeriod,$dfmt) . "','%Y-%m-%d');"; 
-
+	$sql = "select DATE_FORMAT(hdate, '%d') as hday from holiday where hdate >= STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') and hdate < STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') + " . $daysInMonth; 
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {
-		errorExit($EmpId,$db->getError());
+		echo $db->getError();
+		exit();
 	}
 
 	foreach ($rows as $row) {
-		$holidayList[$row['hdate']] = $row['hdate'];
+		$iday = (int)$row['hday'];
+		$holidayList[$iday] = $iday;
 	}
 		
 	$db->close(); 	// close database connection
@@ -118,67 +111,74 @@
 				$deptId = $_POST['deptId_'.$i.''];
 				$activityId = $_POST['activityId_'.$i.''];
 			
-				for( $j = 0; $j < $daysInPeriod; $j++ ) {				
+				for( $j = 0; $j < $daysInMonth; $j++ ) {				
 					if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] != "") {  
 						$hour = $_POST['hour_'.$i.'_'.$j.''];
-						// echo "Hour :" . $hour;
+						//echo "Hour :" . $hour;
 						
-						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". getNewDate($weekStartDate,$j,$dfmt) . "','%Y-%m-%d');";
-						// echo $deletesql[$dsqlId] . "</br>";
+						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
+						echo $deletesql[$dsqlId] . "</br>";
 						$dsqlId++;
 						
-						$insertsql[$isqlId] = "INSERT INTO empmh (empId, prjId, deptId, actId, mdate,mhours,status) VALUES (" . $EmpId . ", " . $prjId . ", " . $deptId . ", " . $activityId . ", STR_TO_DATE('". getNewDate($weekStartDate,$j,$dfmt) . "','%Y-%m-%d'), " . $hour . ", 'S');";
-						// echo $insertsql[$isqlId] . "</br>";
+						$insertsql[$isqlId] = "INSERT INTO empmh (empId, prjId, deptId, actId, mdate,mhours,status) VALUES (" . $EmpId . ", " . $prjId . ", " . $deptId . ", " . $activityId . ", STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d'), " . $hour . ", 'S');";
+						echo $insertsql[$isqlId] . "</br>";
 						$isqlId++;
 						
+
 					}	else if ($_POST['modifiedHourFlg_'.$i.'_'.$j.''] == "true" && $_POST['hour_'.$i.'_'.$j.''] == "") {
 						$hour = $_POST['hour_'.$i.'_'.$j.''];
-						// echo "Hour :" . $hour;
+						//echo "Hour :" . $hour;
 						
-						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". getNewDate($weekStartDate,$j,$dfmt) . "','%Y-%m-%d');";
-						// echo $deletesql[$dsqlId] . "</br>";
+						$deletesql[$dsqlId] = "delete from empmh where empId = " . $EmpId . " and prjId = " . $prjId . " and deptId = " . $deptId . " and actId = " . $activityId . " and mdate = STR_TO_DATE('". $year . "-" . $month . "-" . ($j + 1) . "','%Y-%m-%d');";
+						echo $deletesql[$dsqlId] . "</br>";
 						$dsqlId++;
 					}
 				}
 			}
-				
+			
+			
+			
 			foreach ($deletesql as $dsql) {
 				$db2->query($dsql);
 				if ($db2->getError() != "") {
-					errorExit($EmpId,$db2->getError());
+					echo $db2->getError();
+					exit();
 				}
 			}			
 
 			foreach ($insertsql as $isql) {
 				$db2->query($isql);
 				if ($db2->getError() != "") {
-					errorExit($EmpId,$db2->getError());
+					echo $db2->getError();
+					exit();
 				}
 			}
 			
 			// submit - update status
 			$submitted = $_POST['isSubmit'];
-
+			//echo "posted:".$submitted;
 			if($submitted == "true") {
-				$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $weekStartDate . "','%Y-%m-%d') ;";
+				$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 				$row = $db2->select($sql, [], true);
 				if ($db2->getError() != "") {
-					errorExit($EmpId,$db2->getError());
+					echo $db->getError();
+					exit();
 				}
 						
 				if ($row['rowCount'] == "0") {
-					$submitSql = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $weekStartDate . "','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
+					$submitSql = "INSERT INTO tssubmit(EmpId, Manager, TDate, Status, SDate) VALUES(" . $EmpId . ",(select manager from employee where empid = " . $EmpId . "),STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d'),'S',STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d'));";
 				} else {
-					$submitSql = "UPDATE tssubmit SET Status='S', Sdate = STR_TO_DATE('" . date('Y-m-d') . "','%Y-%m-%d') WHERE empid=" . $EmpId . " and Tdate=STR_TO_DATE('" . $weekStartDate . "','%Y-%m-%d') ;";
+					$submitSql = "UPDATE tssubmit SET Status='S', Sdate = STR_TO_DATE('" . date('Y-m-d') . "','%Y-%m-%d') WHERE empid=" . $EmpId . " and Tdate=STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 				}
 							
 				$db2->query($submitSql);
 				if ($db2->getError() != "") {
-					errorExit($EmpId,$db2->getError());
+					echo $db2->getError();
+					exit();
 				}
 			}
 		
-		} else {	//viewed by approver
+		} else {
 			$EmpId = $_POST['subemp'];
 			// submit - update status
 			$approved = $_POST['isApproved'];
@@ -190,22 +190,13 @@
 				} else {
 					$aStatus = "R";
 				}
-			
-				$approveUpdateQuery = "update tssubmit set status = '" . $aStatus . "', adate = STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d') where empid = " . $EmpId . " and tdate = STR_TO_DATE('". $weekStartDate . "','%Y-%m-%d');";
+				
+				$approveUpdateQuery = "update tssubmit set status = '" . $aStatus . "', adate = STR_TO_DATE('". date('Y-m-d') . "','%Y-%m-%d') where empid = " . $EmpId . " and tdate = STR_TO_DATE('". $year . "-" . $month . "-01','%Y-%m-%d');";
 
 				$db2->query($approveUpdateQuery);
 				if ($db2->getError() != "") {
-					errorExit($EmpId,$db2->getError());
-				}
-				
-				//	update manhour table to approve time 			
-				if($approved == "true") {
-					$manhourApproveQuery = "update empmh set status = '" . $aStatus . "' where empid = " . $EmpId . " and mdate >= STR_TO_DATE('". $weekStartDate . "','%Y-%m-%d') and mdate < STR_TO_DATE('". getNewDate($weekStartDate,$daysInPeriod,$dfmt) . "','%Y-%m-%d');";
-				
-					$db2->query($manhourApproveQuery);
-					if ($db2->getError() != "") {
-						errorExit($EmpId,$db2->getError());
-					}
+					echo $db2->getError();
+					exit();
 				}
 			}
 		
@@ -215,12 +206,13 @@
 	}
 
 	$db = new Database();	// open database
-	
-	// querying tssubmit table and check if timesheet submitted for the requested period
-	$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $weekStartDate . "','%Y-%m-%d') ;";
+
+	// querying tssubmit table and check if timesheet submitted for that month
+	$sql = "select count(1) as rowCount, Status from tssubmit where empid =" . $EmpId . " and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') ;";
 	$row = $db->select($sql, [], true);
 	if ($db->getError() != "") {
-		errorExit($EmpId,$db->getError());
+		echo $db->getError();
+		exit();
 	}
 	
 	if ($row['rowCount'] == "1") {
@@ -262,12 +254,14 @@
 	// querying empmh table and getting all records for particular month
 	$keyArray = null;
 	
-	$sql = "SELECT mid, mdate, concat(Prjid ,'-' ,DeptId, '-', ActId) as key1 , mhours FROM " . $table;
-	$sql .= " where EmpId=" . $EmpId . " and mdate >= STR_TO_DATE('" . $weekStartDate . "','%Y-%m-%d')";
-	$sql .= " and mdate < STR_TO_DATE('" . getNewDate($weekStartDate,$daysInPeriod,$dfmt) . "','%Y-%m-%d') ;"; 		
+	$sql = "SELECT mid, DATE_FORMAT(mdate, '%d') as mday, concat(Prjid ,'-' ,DeptId, '-', ActId) as key1 , mhours FROM " . $table;
+	$sql .= " where EmpId=" . $EmpId . " and mdate >= STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d')";
+	$sql .= " and mdate < STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d') + " . $daysInMonth; 
+		
 	$rows = $db->select($sql);
 	if ($db->getError() != "") {
-		errorExit($EmpId,$db->getError());
+		echo $db->getError();
+		exit();
 	}
 
 	foreach ($rows as $row)
@@ -275,54 +269,52 @@
 		if ($keyArray[$row['key1']] != null) {
 			$tempArray1 = null;
 			$tempArray1 = $keyArray[$row['key1']];
-			$tempArray1[$row['mdate']] = $row['mhours'];
+			$tempArray1[$row['mday']] = $row['mhours'];
 			$keyArray[$row['key1']] = $tempArray1;	
 		} else {
 			$tempArray = null;
-			$tempArray[$row['mdate']] = $row['mhours'];
+			$tempArray[$row['mday']] = $row['mhours'];
 			$keyArray[$row['key1']] = $tempArray;
 		}
 	}
 
 	$db->close(); 	// Close connection
 	
-	function isHoliday($idate) {
-		$dayName = date("D",strtotime($idate));
-		if ($dayName == "Sun" || ($idate == $GLOBALS['holidayList'][$idate])) { // if the day is weekend or holiday
+	function isHoliday($dd,$mm,$yyyy) {
+		$idate = $yyyy."-".$mm."-".$dd;
+		$day = date("D",strtotime($idate));
+		if ($day == "Sun" || ($dd == $GLOBALS['holidayList'][$dd])) { // if the day is weekend or holiday
 			return true;	// holiday
 		} else {
 			return false;	// not holiday
 		}
 	}
-
-	function getHourClass($idate) {
-		if (isHoliday($idate)) {
+	
+	function getHourClass($dd,$mm,$yyyy) {
+		if (isHoliday($dd,$mm,$yyyy)) {
 			return "holiday";
 		} else {
 			return "workday";
 		}
 	}
 	
-	/*
-	function getNewDate($sdate,$ndays, $dfmt) {
-		// $sdate in yyyy-mm-dd in string format
-		// $ndays is no of days starting from $sdate in integer format
-		// $dfmt is the output date format e.g "d-m-y"
-		// returns the new date in yyyy-mm-dd in string format
+	function getEmployeeName($eid) {
 		
-		$date=date_create($sdate);
-		date_add($date,date_interval_create_from_date_string($ndays . " days"));
-		$newDate = date_format($date,$dfmt);
-
-		return $newDate;
+		$db = new Database();	// open database
+		
+		$sql = "select name from employee where empid =" . $eid . " limit 1 ;";
+		$row = $db->select($sql, [], true);
+		if ($db->getError() != "") {
+			echo $db->getError();
+			exit();
+		}
+		$employeeName = $row['name'];
+		
+		$db->close();
+		
+		return $employeeName;
+		
 	}
-	*/
-	function errorExit($emp,$errmsg) {
-		echo $errmsg;
-		error_log(date("d-M-Y H:i:s") . ";" . $emp . ";" . $errmsg, 3, "C:\sreek\php_errors.log");
-		exit();
-	}
-
 ?>
 
 <html>
@@ -341,20 +333,14 @@
 
 				
 			$(function() {
-				
 				var startDate;
 				var endDate;
 				
-					var temp = document.getElementById('startDate').value;
-					date = new Date(temp.substr(6,4), temp.substr(0,2) - 1, temp.substr(3,2));
-				
-					startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 1);					
-					endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 7);
-					//document.getElementById('startDate').value = "" + (startDate.getMonth() + 1) + "/" + startDate.getDate() + "/" + startDate.getFullYear();
+
 				
 				var selectCurrentWeek = function() {
 					window.setTimeout(function () {
-						$('.ui-datepicker-calendar').find('.ui-datepicker-current-day a').addClass('ui-state-active')
+						$('.week-picker').find('.ui-datepicker-current-day a').addClass('ui-state-active')
 					}, 1);
 				}
 				
@@ -369,15 +355,13 @@
 						var dateFormat = inst.settings.dateFormat || $.datepicker._defaults.dateFormat;
 						//$('#startDate').text($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
 						//$('#endDate').text($.datepicker.formatDate( dateFormat, endDate, inst.settings ));
-						$('#startDate').val($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
+						$('#weekpicker').val($.datepicker.formatDate( dateFormat, startDate, inst.settings ));
 						selectCurrentWeek();
-						$(this).change();
 					},
 					beforeShowDay: function(date) {
 						var cssClass = '';
-						if(date >= startDate && date <= endDate) {
+						if(date >= startDate && date <= endDate)
 							cssClass = 'ui-datepicker-current-day';
-						}
 						return [true, cssClass];
 					},
 					onChangeMonthYear: function(year, month, inst) {
@@ -387,36 +371,34 @@
 				
 				$('.ui-datepicker-calendar tr').live('mousemove', function() { $(this).find('td a').addClass('ui-state-hover'); });
 				$('.ui-datepicker-calendar tr').live('mouseleave', function() { $(this).find('td a').removeClass('ui-state-hover'); });
-				
-				$(".week-picker").click(function() {
-					selectCurrentWeek();
-				});
 			});
-
+			
+			
 		</script>
 	</head>
 	
-	<body onload="calculateTotal();">
+	<body onload="loadDate();calculateTotal();">
 	
 		<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="mhourform" onsubmit="enableDropdowns();"> 
 		<br>
-
 		<?php
 		if($view == "approver") {
 		?>
 		
-		<table border="1" align="right">
+		<table border="1" align="left">
 			<tr>
 				<th class="total">Select Employee</th>
 				<td>
 					<select id="subemp" name="subemp" onchange="doReloadEmployee(this);">
 					<?php
-						$sql3 = "select empid, name,  (select status from tssubmit where empid = a.empid and tdate = STR_TO_DATE('" . $year . "-" . $month . "-" . $day . "','%Y-%m-%d')) as status from employee a where manager = " . $approver . " and empid != " . $approver . ' and status!="left" order by empno;';
+
+						$sql3 = "select empid, name,  (select status from tssubmit where empid = a.empid and tdate = STR_TO_DATE('" . $year . "-" . $month . "-01','%Y-%m-%d')) as status from employee a where manager = " . $approver . " and empid != " . $approver . ";";
 
 						$db3 = new Database();
 						$emprows = $db3->select($sql3);
 						if ($db3->getError() != "") {
-							errorExit($EmpId,$db3->getError());
+							echo $db3->getError();
+							exit();
 						}
 
 						foreach ($emprows as $emprow) {
@@ -444,27 +426,23 @@
 		</table>
 		<?php
 		}
-		?>	
-		
-		<table border="1" align="left">
+		?>
+		<table border="1" align="center">
 			<tr>
-				<!--<th class="total">Month</th>
-				<td><input type="month" name="actDate" id="actDate" onchange="doReload(this.value);" value="<?php echo $actDate;?>"></td> -->
-				<th class="total">Select Week Start Date:</th>
-				<td><input style="width:15px" type="text" class="week-picker" id="startDate" name="startDate" onchange="doReloadStartDate(this.value);" value="<?php echo $startDate;?>"></input></td>
+				<th class="total">Month</th>
+				<td><input type="month" name="actDate" id="actDate" onchange="doReload(this.value);" value="<?php echo $actDate;?>"></td>
+				<td><input type="text" class="week-picker" id="weekpicker"></input>
 			</tr>
 		</table>
 		
-		<br><br>
-		<table border="0" align="left">
-			<tr><td><b><font color="red"> 
+		<table border="0" align="center">
+			<tr><td><font color="red"> 
 				<?php echo "Status: ".$tsStatus; ?> 
-			</font></b></td></tr>
+			</font></td></tr>
 		</table>
 		
-		<br>
 		<h1>Timesheet of <font color="blue"><?php echo getEmployeeName($EmpId); ?></font></h1>
-
+		
 		<div style="overflow-y: auto;" > <!-- div added for putting scroll bar on table-->
 			<table border="3" align="left" id="hourtable">
 				<tr class="table table1">
@@ -475,27 +453,25 @@
 					<?php	
 						echo "\n";
 						// for each day in month display day of the month
-						for( $i = 0; $i < $daysInPeriod; $i++ ) {
-							$newDate = getNewDate($weekStartDate,$i,$dfmt);
-							$dayName = date("D",strtotime($newDate));
+						for( $i = 1; $i <= $daysInMonth; $i++ ) {
+							$idate = $year."-".$month."-".$i;
+							$day = date("D",strtotime($idate));
 							echo '					<th>';
-							if (isHoliday($newDate)) {
-								echo '<font color="red">'.$dayName .'</font>';
-								echo '<input type="hidden" name="hw_'.$i.'" id="hw_'.$i. '" value="H">';
+							if (isHoliday($i,$month,$year)) {
+								echo '<font color="red">'.$day .'</font>'. "</th>";
 							} else {
-								echo $dayName;
-								echo '<input type="hidden" name="hw_'.$i.'" id="hw_'.$i. '" value="W">';
+								echo $day . "</th>";
 							}
-							echo "</th>\n";
+							echo "\n";
 						}
 					?>
 					<th align="centre" rowspan="2">Total</th>
 				</tr>
 				<tr class="table table1">
 					<?php
-						for( $i = 0; $i < $daysInPeriod; $i++ ) {
+						for( $i = 1; $i <= $daysInMonth; $i++ ) {
 							echo "\n";
-							echo "					<th>" . getNewDate($weekStartDate,$i,"d-M-y") . "</th>";
+							echo "					<th>" . $i . "</th>";
 						}			
 					?>
 					
@@ -503,12 +479,12 @@
 				
 				<?php
 					// Populating all rows fetched from database
-					$ir = 0;	
+					$ir = 0;
+					$ic = 0;
 					
 					echo "\n";
-					
 					// for each key add a manhour row
-					foreach ($keyArray as $key1=>$datearray) { 	
+					foreach ($keyArray as $key1=>$datearray) {
 						$mykeys = explode('-', $key1);
 						echo "\n";
 						echo '					<tr name="mhrow_' . $ir . '" id="mhrow_' . $ir . '">';
@@ -519,7 +495,7 @@
 						echo "\n						</td>\n";
 						
 						echo "						<td>\n";
-						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownProject("project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
+						echo '							<select disabled name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("project", "prjid", "name", $mykeys[0]). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						
@@ -534,25 +510,24 @@
 						echo "\n";
 						
 						// for each day in month add hour column
-						for( $i = 0; $i < $daysInPeriod; $i++ ) {
+						for( $i = 1; $i <= $daysInMonth; $i++ ) {
 							$tempHour = "";
-							
 							foreach ($datearray as $date=>$hour) {
 								// if day equal to date fetched from database set the hours fetched from database 
-								$newDate = getNewDate($weekStartDate,$i,$dfmt);
-
-								if($newDate == $date) {
+								if($i == $date) {
 									$tempHour = $hour;
 								}
 							}
-							
+							//echo '						<td><input style="width: 57px; padding: 2px" type="number" step="any" min="0" max="24" name="hours" id="' . $key1 . '-' . $i . '" value="' . $tempHour . '"></td>';		 // to increment data	
+							//echo '						<td><input onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);" style="width: 30px; padding: 2px" type="text" name="hour_' . $ir . '_' . $ic . '" id="hour_' . $ir . '_' . $ic . '" value="' . $tempHour . '"></td>';
 							echo '						<td>';
 							echo "\n";
-							echo '							<input  ' . $disabled. ' class="' . getHourClass($newDate). '" onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);"' . "\n								" . ' style="width: 60px; padding: 2px" type="text" name="hour_' . $ir . '_' . $i . '" id="hour_' . $ir . '_' . $i . '" value="' . $tempHour . '">';
+							echo '							<input  ' . $disabled. ' class="' . getHourClass($i,$month,$year). '" onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);"' . "\n								" . ' style="width: 30px; padding: 2px" type="text" name="hour_' . $ir . '_' . $ic . '" id="hour_' . $ir . '_' . $ic . '" value="' . $tempHour . '">';
 							echo "\n						</td>\n";
 							echo "\n";
-							echo '							<input type="hidden" name="modifiedHourFlg_' . $ir . '_' . $i . '" id="modifiedHourFlg_' . $ir . '_' . $i . '" value="false">';
+							echo '							<input type="hidden" name="modifiedHourFlg_' . $ir . '_' . $ic . '" id="modifiedHourFlg_' . $ir . '_' . $ic . '" value="false">';
 							echo "\n";
+							$ic = $ic + 1;
 						}
 
 						echo '						<td align="right"><input class="total" disabled style="width: 60px; padding: 2px" type="text" name="rowTotal_' . $ir . '" id="rowTotal_' . $ir . '" ></td>';
@@ -560,16 +535,19 @@
 						echo "					</tr>";
 						echo "\n";
 
-						$ir = $ir + 1;				
+						$ir = $ir + 1;
+						$ic = 0;
+						
 					}
 					
-					// add blank rows if needed
 					$lastrow = 0;
+					
 					if ($ir < 5) {
 						$lastrow = 5;
 					} else {
 						$lastrow = $ir + 1;
 					}
+					
 					
 					while($ir <= $lastrow) {
 						// Adding default blank row at end
@@ -585,7 +563,7 @@
 						echo '							<input type="checkbox"  ' . $disabled. ' onchange="toggleDelete(this);" name="deleteChkBx"_' . $ir . '" id="deleteChkBx_' . $ir . '">';
 						echo "\n						</td>\n";
 						echo "						<td>\n";
-						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownProject("project", "prjid", "name", ""). "\n" . '							</select>';
+						echo '							<select  ' . $disabled. ' onFocus="this.oldValue = this.value"; onchange="checkDuplicateRow(this); enableHoursOnRow(this);" name="prjId_' . $ir . '" id="prjId_' . $ir . '">' . createDropDownString("project", "prjid", "name", ""). "\n" . '							</select>';
 						echo "\n						</td>";
 						echo "\n";
 						echo "						<td>\n";
@@ -598,15 +576,20 @@
 						echo "\n";
 					
 						// for each day in month add hour column
-						for( $i = 0; $i < $daysInPeriod; $i++ ) {
+						for( $i = 1; $i <= $daysInMonth; $i++ ) {
 							$tempHour = "";
-							$newDate = getNewDate($weekStartDate,$i,$dfmt);					
+
+							//echo '				<td><input style="width: 57px; padding: 2px" type="number" step="any" min="0" max="24" name="hours" id="' . "key" . '-' . $i . '" value="' . $tempHour . '"></td>';
+							//echo '						<td><input disabled onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);" style="width: 30px; padding: 2px" type="text" name="hour_' . $ir . '_' . $ic . '" id="hour_' . $ir . '_' . $ic . '" value="' . $tempHour . '"></td>';
+							
 							echo '						<td>';
 							echo "\n";
-							echo '							<input disabled class="' . getHourClass($newDate). '" onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);"' . "\n								" . ' style="width: 60px; padding: 2px" type="text" name="hour_' . $ir . '_' . $i . '" id="hour_' . $ir . '_' . $i . '" value="' . $tempHour . '">';
+							echo '							<input disabled class="' . getHourClass($i,$month,$year). '" onchange="checkHours(this);updateModifiedFlag(this);calculateTotal();checkTotal(this);"' . "\n								" . ' style="width: 30px; padding: 2px" type="text" name="hour_' . $ir . '_' . $ic . '" id="hour_' . $ir . '_' . $ic . '" value="' . $tempHour . '">';
 							echo "\n						</td>\n";
-							echo '							<input type="hidden" name="modifiedHourFlg_' . $ir . '_' . $i . '" id="modifiedHourFlg_' . $ir . '_' . $i . '" value="false">';
-							echo "\n";							
+							echo '							<input type="hidden" name="modifiedHourFlg_' . $ir . '_' . $ic . '" id="modifiedHourFlg_' . $ir . '_' . $ic . '" value="false">';
+							echo "\n";
+							
+							$ic = $ic + 1;								
 						}
 						echo '						<td align="right">';
 						echo "\n";
@@ -615,14 +598,15 @@
 						echo "					</tr>";
 						echo "\n";
 						$ir = $ir + 1;
+						$ic = 0;
 					}
 					
 					// for each day in month add total column
 					echo '						<th class="total" align="right" colspan="4">Total&nbsp;&nbsp;</th>';
 					echo "\n";
 					
-					for( $i = 0; $i < $daysInPeriod; $i++ ) {
-						echo '						<td><input class="total" disabled style="width: 60px; padding: 2px" type="text" name="colTotal_' . $i . '" id="colTotal_' . $i .'"></td>';
+					for( $i = 1; $i <= $daysInMonth; $i++ ) {
+						echo '						<td><input class="holiday" disabled style="width: 30px; padding: 2px" type="text" name="colTotal_' . ($i - 1) . '" id="colTotal_' . ($i - 1) .'"></td>';
 						echo "\n";
 					}
 					
@@ -636,7 +620,7 @@
 					echo "\n";
 					echo '				<input type="hidden" name="noofrows" id="noofrows" value=' . ($ir) .'>';
 					echo "\n";
-					echo '				<input type="hidden" name="daysInPeriod" id="daysInPeriod" value=' . ($daysInPeriod) .'>';
+					echo '				<input type="hidden" name="daysInMonth" id="daysInMonth" value=' . ($daysInMonth) .'>';
 					echo "\n";
 					echo '				<input type="hidden" name="isSubmit" id="isSubmit" value=false>';
 					echo "\n";

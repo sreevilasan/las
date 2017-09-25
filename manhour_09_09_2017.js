@@ -4,9 +4,10 @@ Description: Contains all javascript functions for manhours page
 */
 
 function loadDate() {
-	if (document.getElementById("startDate").value == "") {
-		document.getElementById("startDate").valueAsDate = new Date();
+	if (document.getElementById("actDate").value == "") {
+		document.getElementById("actDate").valueAsDate = new Date();
 	}
+	
 }
 
 function checkHours(a) {
@@ -21,8 +22,7 @@ function checkHours(a) {
 	} else if (a.value ==  ""){
 		;
 	} else {
-		// a.value = Math.trunc(a.value * 10) /10;
-		a.value = Math.floor(a.value * 10) /10;
+		a.value = Math.trunc(a.value * 10) /10;
 	}
 	a.style.backgroundColor = "yellow";
 }
@@ -33,48 +33,38 @@ function updateModifiedFlag(a){
 	document.getElementById('dataModified').value = true;
 }
 
-function calculateTotal(){	
-//alert("In total");
+function calculateTotal(){				
 	for (j = 0; j < document.getElementById("noofrows").value; j++) {
 		rowId = 'rowTotal_' + j;
 
 		var rowSum = 0;
-		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
+		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 
 			hourId = 'hour_' + j + '_' + i; 
 
 			if (document.getElementById(hourId).value != "") {
-				rowSum += parseFloat(document.getElementById(hourId).value);
+				rowSum += parseInt(document.getElementById(hourId).value);
 			}
 		}	
 		document.getElementById(rowId).value = rowSum;
 	}	
 	
-	for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
+	for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 		colId = 'colTotal_'+ i;
 		var colSum = 0;
 		for (j = 0; j < document.getElementById("noofrows").value; j++) {
 			hourId = 'hour_' + j + '_' + i; 
 			if (document.getElementById(hourId).value != "") {
-				colSum += parseFloat(document.getElementById(hourId).value);
+				colSum += parseInt(document.getElementById(hourId).value);
 			}
 		}
 		document.getElementById(colId).value = colSum;
-		
-		if (document.getElementById(colId).value < 8 && (document.getElementById("hw_" + i).value != "H")) {
-			document.getElementById(colId).style.backgroundColor = "pink";
-		}
-		
-		// view by approver
-		if ((document.getElementById("view").value == "approver") && (parseFloat(document.getElementById(colId).value) > 8)) {
-			document.getElementById(colId).style.backgroundColor = "lightgreen";
-		}
 	}
 	
 	var grandSum = 0;
-	for (j = 0; j < document.getElementById("daysInPeriod").value; j++) {
+	for (j = 0; j < document.getElementById("daysInMonth").value; j++) {
 		colId = 'colTotal_' + j;
-		grandSum += parseFloat(document.getElementById(colId).value);
+		grandSum += parseInt(document.getElementById(colId).value);
 	}
 	document.getElementById("grandTotal").value = grandSum;
 }
@@ -83,53 +73,39 @@ function checkTotal(a) {
 	var hourId = a.id;
 	var temp = hourId.split("_");
 	var colTotalId = 'colTotal_' + temp[2];
-	var hwId = 'hw_' + temp[2];
 
 	if (document.getElementById(colTotalId).value > 24 ) {
 		alert("Total hours for a day should be between 0 to 24");
 		document.getElementById(colTotalId).style.backgroundColor = "red";
 		a.focus();
-	} else if ((parseFloat(document.getElementById(colTotalId).value) < 8) && (document.getElementById(hwId).value != "H")) {
-		document.getElementById(colTotalId).style.backgroundColor = "pink";
 	} else {
 		document.getElementById(colTotalId).style.backgroundColor = "lightgray";
 	}
 }
 
 /*
-function doReload(actDate){	
-	var view = document.getElementById("view").value;
-	var startDate = document.getElementById("startDate").value;
-	
-	if(view == "approver") {
-		var subemp = document.getElementById("subemp").value;
-		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?view=approver&EmpId=' + subemp + '&startDate=' + startDate;	
-	} else {
-		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?startDate=' + startDate;
-	}
+function daysInMonth(anyDateInMonth) {
+	return new Date(anyDateInMonth.getYear(), anyDateInMonth.getMonth()+1,0).getDate();
 }
 */
-function doReloadStartDate(startDate){	
+
+function doReload(actDate){	
 	var view = document.getElementById("view").value;
-	var actDate = document.getElementById("startDate").value;
-	
 	if(view == "approver") {
 		var subemp = document.getElementById("subemp").value;
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?view=approver&EmpId=' + subemp + '&startDate=' + startDate;	
+		document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;	
 	} else {
 		var reloadurl = document.getElementById("mhourform").action;
-		document.location = reloadurl + '?startDate=' + startDate;
+		document.location = reloadurl + '?actDate=' + actDate;
 	}
 }
 
 function doReloadEmployee(a){
-	var startDate = document.getElementById("startDate").value;
+	var actDate = document.getElementById("actDate").value;
 	var subemp = a.value;
 	var reloadurl = document.getElementById("mhourform").action;
-	document.location = reloadurl + '?view=approver&startDate=' + startDate + '&EmpId=' + subemp;
+	document.location = reloadurl + '?view=approver&actDate=' + actDate + '&EmpId=' + subemp;
 }
 
 function enableDropdowns() {
@@ -150,7 +126,7 @@ function enableHoursOnRow(a) {
 	var activityId = document.getElementById("activityId_" + rowid).value;
 
 	if(prjId != "" && deptId != "" && activityId != "") {
-		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
+		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = false;
 		}
 	}
@@ -217,11 +193,11 @@ function toggleDelete(a) {
 	var rowid = temp[1];
 	
 	if(a.checked) {
-		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
+		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = true;
 		}
 	} else {
-		for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
+		for (i = 0; i < document.getElementById("daysInMonth").value; i++) {
 			document.getElementById("hour_" + rowid + "_" + i).disabled = false;
 		}
 	}
@@ -234,7 +210,7 @@ function deleteSelectedRows() {
 			//document.getElementById("mhrow_" + i).hidden = true; // remove the row by hidden=true for the tr of row
 			document.getElementById("mhrow_" + i).style.display = "none"; // remove the row by style.display="none" for the tr of row
 			document.getElementById("deleteChkBx_" + i).disabled = true;
-			for (j = 0; j < document.getElementById("daysInPeriod").value; j++) {
+			for (j = 0; j < document.getElementById("daysInMonth").value; j++) {
 				document.getElementById("hour_" + i + "_" + j).disabled = true;
 				if(document.getElementById("hour_" + i + "_" + j).value != "") {
 					document.getElementById("modifiedHourFlg_" + i + "_" + j).value = true;
@@ -245,65 +221,42 @@ function deleteSelectedRows() {
 }
 
 function submitHours() {
+	
 	var txt;
-
-	// check for colTotal < 8 hours. if anywhere less then alert and dont submit
-	if (lessDailyHours() == true) {
-		alert("Daily total manhours less than 8 hours. Manhours not submitted.");
-		// dont submit timesheet
+	if (confirm("Do you really want to submit man hours for approval?") == true) {
+		document.getElementById("isSubmit").value = true;
+		enableDropdowns();
+		document.getElementById("mhourform").submit();
+		txt = "Manhours submitted for approval";
+		// send mail to Manager
+	} else {
 		txt = "Manhours not submitted.";
-	} else {
-		if (confirm("Do you really want to submit man hours for approval?") == true) {
-			document.getElementById("isSubmit").value = true;
-			enableDropdowns();
-			document.getElementById("mhourform").submit();
-			txt = "Manhours submitted for approval";
-			// send mail to Manager
-		} else {
-			txt = "Manhours not submitted.";
-		}
 	}
-	// alert(txt);
+	//alert(txt);
 }
-
-function lessDailyHours() {
-	isLessHours = false;
-
-	for (i = 0; i < document.getElementById("daysInPeriod").value; i++) {
-		if ((parseFloat(document.getElementById("colTotal_" + i).value) < 8) && (document.getElementById("hw_" + i).value != "H")) {
-			isLessHours = true;
-			return isLessHours;
-		}
-	}
-	return isLessHours;
-}
-
-/*
-function isHoliday(iday) {
-	if ((document.getElementById("hw_" + iday).value == "H") {
-		return true;
-	} else {
-		return false;
-	}
-}
-*/
 
 function approveHours() {
 	var txt;
-
+//alert(document.getElementById("mhourform").action);
 	document.getElementById("isApproved").value = true;
+	//enableDropdowns(); //check if needed
 	document.getElementById("mhourform").submit();
 	txt = "Manhours approved";
 	// send mail to Employee
+
+	//alert(txt);
 }
 
 function rejectHours() {
 	var txt;
 
 	document.getElementById("isRejected").value = true;
+	//enableDropdowns();
 	document.getElementById("mhourform").submit();
 	txt = "Manhours approved";
 	// send mail to Employee
+
+	//alert(txt);
 }
 
 function quitWithoutSaving() {
@@ -326,6 +279,7 @@ function populateActDrpDwn(a) {
 	var activityId = document.getElementById("activityId_" + rowid);
 	//alert(activityId.innerHTML);
 	
+
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -334,4 +288,5 @@ function populateActDrpDwn(a) {
 	};
 	xmlhttp.open("GET", "activitydropdown.php?deptId=" + deptId, true);
 	xmlhttp.send();
+
 }

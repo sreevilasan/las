@@ -33,7 +33,10 @@
 			</tr>
 			<tr>
 				<td colspan="2" align="center">
-					<input type="submit" name="submit" value="Submit"> 
+					<input type="submit" name="submit" id="submit" value="Submit"> 
+				</td>
+				<td colspan="2" align="center">
+					<input type="submit" name="changepwd" id="changepwd" value="Change Password"> 
 				</td>
 			</tr>	
 			<tr>

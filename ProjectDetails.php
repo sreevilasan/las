@@ -13,7 +13,7 @@
 
 	$db = new Database();	// open database
 
-	$sql = 'SELECT * FROM ' . $table . ' order by PrjId;';
+	$sql = "SELECT * FROM " . $table . " where catagory!='99' order by catagory asc, PrjNo desc;";
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {

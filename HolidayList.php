@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="css/manhour.css">
+	<link rel="stylesheet" href="css/LasStyle.css">
 </head>
 
 <body>
@@ -14,24 +14,24 @@
 	require 'include/Header.php';
 
 	$table = 'holiday';
+	$currentYear = date("Y");
 
 	$db = new Database();	// open database
 
-	$sql = 'SELECT * FROM ' . $table . ' order by hdate;';
+	$sql = "SELECT * FROM " . $table . " where year(hdate)='" . $currentYear . "' order by hdate;";
 	$rows = $db->select($sql);
 		
 	if ($db->getError() != "") {
 		echo $db->getError();
 		exit();
 	}
+	
+	echo '<br><br>';
+	echo '<table class="table10" align="center" border="0"><tr><th><h2>Holiday List</h1><br></th></tr></table>';
+	
+	echo '<table class="table10" align="center" border="1">';
+	echo '<tr class="table10 table11"><th width="60px" height="30px">No</th><th width="100px">Date</th><th width="100px">Weekday</th><th style="width:200px;">Description</th></tr>';
 
-	echo '<h2>Holiday List</h1><br>';
-	echo '<table class="table table2" align="left" border="1">';
-	echo '<tr class="table table1"><th width="60px" height="30px">No</th><th width="100px">Date</th><th width="100px">Weekday</th><th style="width:200px; padding:10px">Description</th></tr>';
-	//$bs = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-	//echo $bs,'<font color = "blue"><strong>'. 'No' . $bs . 'Date' . $bs . 'Weekday' . $bs . $bs .'Description'.'</strong></font>';
-	//echo '<br>';
-	//echo  "<br>--------------------------------------------------------------------------------<br>";
 	$i = 0;
 	foreach ($rows as $row)
 	{
@@ -40,13 +40,7 @@
 		$fday = date_format(date_create($row['hdate']),"l");
 		$description = $row['hname'];
 		
-		echo '<tr><th height="30px">' . $i . '</th><th>' . $fdate . '</th><th>'. $fday .'</th><th align="left" style="width:200px; padding:10px">' . $description . '</th></tr>';
-		
-		//echo $bs.$i;
-		//echo $bs . $fdate;
-		//echo $bs . $fday;
-		//echo $bs .$bs. $row['hname']; 
-		//echo  "<br>--------------------------------------------------------------------------------<br>";
+		echo '<tr class="table10 table12"><td height="30px">' . $i . '</td><td>' . $fdate . '</td><td>'. $fday .'</td><td align="left" style="width:200px;">' . $description . '</td></tr>';
 	}
 	echo '</table>';
 
