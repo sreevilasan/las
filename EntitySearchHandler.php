@@ -6,7 +6,7 @@
 	
 	require 'include/sessioncheck.php';
 	require 'include/commonclass.php';
-	require 'include/Header.php';
+	//require 'include/Header.php';
 	
 	// get data from GET variables
 	$entityid = $_GET['entityid']; 
@@ -16,50 +16,15 @@
 		//echo "Loaded via Posting method</br>";
 		$entityid = $_POST['entityid'];
 	}
-	
+
+	require 'include/GetEntityFields.php';
+
 	$db = new Database();	// open database
-
-	$sql = "SELECT * FROM entity where entityid='" . $entityid . "'";
-	$row = $db->select($sql, [], true);
-		
-	if ($db->getError() != "") {
-		echo $db->getError();
-		exit();
-	}
 	
-	$entitydescription = $row['description'];
-	$entityprimtable = $row['primtable'];
-	$entityprimcol = $row['primcol'];
-	$entitydescol = $row['descol'];
-	echo '<h2>' . $entitydescription. ' </h2><br>';
-	
-	$sql = "SELECT * FROM entityfields where entityid='" . $entityid . "' order by displayseq";
-	$rows = $db->select($sql);
-	
-	if ($db->getError() != "") {
-		echo $db->getError();
-		exit();
-	}
-	
-	$entityfields;
-	
-	foreach ($rows as $row)
-	{
-		$entityfield['fieldid'] = $row['fieldid'];
-		$entityfield['description'] = $row['description'];
-		$entityfield['displayseq'] = $row['displayseq'];
-		$entityfield['display'] = $row['display'];
-		$entityfield['search'] = $row['search'];
-		$entityfields[$row['fieldid']] = $entityfield;
-	}
-	$rows = "";
-
 	$entitysql = "";
 	foreach ($entityfields as $entityfield)
 	{
-
 		$entitysql = $entitysql . $entityfield['fieldid'] . " , ";
-
 	}
 	$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));
 		
@@ -96,7 +61,7 @@
 	
 	<body onload=";">
 	
-			<table border="0">
+			<table class="tabinput" border="1">
 				<tr>
 <?php
 			echo '					<th align="center">Action</th>';
@@ -125,7 +90,7 @@
 						//$disabled = "disabled";
 					}
 					if($entityfield['search'] == "Y") {
-						echo '					<td align="center">' . $row[$entityfield['fieldid']] . '</td>';
+						echo '					<td>' . $row[$entityfield['fieldid']] . '</td>';
 					}
 				}
 				echo "\n";

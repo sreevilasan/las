@@ -15,50 +15,16 @@
 		//echo "Loaded via Posting method</br>";
 		$entityid = $_POST['entityid'];
 	}
-
-	$db = new Database();	// open database
-
-	$sql = "SELECT * FROM entity where entityid='" . $entityid . "'";
-	$row = $db->select($sql, [], true);
-		
-	if ($db->getError() != "") {
-		echo $db->getError();
-		exit();
-	}
 	
-	$entitydescription = $row['description'];
-	$entityprimtable = $row['primtable'];
-	$entityprimcol = $row['primcol'];
-	echo '<h2>' . $entitydescription. ' </h2><br>';
+	require 'include/GetEntityFields.php';
 	
-	$sql = "SELECT * FROM entityfields where entityid='" . $entityid . "' order by displayseq";
-	$rows = $db->select($sql);
-	
-	if ($db->getError() != "") {
-		echo $db->getError();
-		exit();
-	}
-	
-	$entityfields;
-	
-	foreach ($rows as $row)
-	{
-		$entityfield['fieldid'] = $row['fieldid'];
-		$entityfield['description'] = $row['description'];
-		$entityfield['displayseq'] = $row['displayseq'];
-		$entityfield['display'] = $row['display'];
-		$entityfield['search'] = $row['search'];
-		$entityfields[$row['fieldid']] = $entityfield;
-	}
-	$rows = "";
-
 	// make entity sql query
+	$db = new Database();	// open database
+	
 	$entitysql = "";
 	foreach ($entityfields as $entityfield)
 	{
-		if($entityfield['search'] == "Y") {
 			$entitysql = $entitysql . $entityfield['fieldid'] . " , ";
-		}	
 	}
 	$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));
 	
@@ -71,7 +37,6 @@
 	}
 
 	$db->close();	// Close database  
-	
 ?>
 
 <html>
@@ -83,21 +48,47 @@
 	<link rel="stylesheet" href="css/LasStyle.css">
 	<script type="text/javascript">
 		function quit() {
-			document.location = "EditEmployee.php"; // go to employee main page
+			document.location = "DbMain.php"; // go to entity main page
 		}
 		
 		function edit() {
 			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
 		}
+		function addnew() {
+			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value;
+		}
+		
 	</script>
 </head>
 	
 <body onload=";">
+
+<?php
+		echo '<table class="tabinput" border="0">';      // main title
+		echo '<tr><td colspan="2">';
+			echo '<h1>' . $entitydescription. ' </h1></td>';
+?>
+			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
+			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
+<?php
+		echo '</tr><tr><td>';
+?>
 	
-		<table border="0">
+		<table class="tabinput" border="1">
 			<tr>
 <?php
-			echo '					<th>Action</th>';
+
+			if ($entityedit == 'Y') {
+				echo '<th>Edit</th>';
+			}
+			if ($entityview == 'Y') {
+				echo '<th>View</th>';
+			}
+			if ($entitydelete == 'Y') {
+				echo '<th>Delete</th>';
+			}
+			
+			//echo '					<th>Action</th>';
 			foreach ($entityfields as $entityfield)
 			{
 				if ($entityfield['fieldid'] == $entityprimcol) {
@@ -114,8 +105,17 @@
 <?php
 		foreach ($rows as $row)
 		{
-			echo "				<tr>\n";
-			echo '<td><a href="EntityAddUpd.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Edit</a>&nbsp;<a href="EntityDisplay.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">View</a></td>';
+			echo '				<tr>';
+			
+			if ($entityedit == 'Y') {
+				echo '<td><a href="EntityAddUpd.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Edit</a></td>';
+			}
+			if ($entityview == 'Y') {
+				echo '<td><a href="EntityDisplay.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">View</a></td>';
+			}
+			if ($entitydelete == 'Y') {
+				echo '<td><a href="EntityDelete.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Delete</a></td>';
+			}	
 			
 			foreach ($entityfields as $entityfield) {
 				if ($entityfield['fieldid'] == $entityprimcol) {
@@ -123,21 +123,20 @@
 				}
 				if($entityfield['search'] == "Y") {
 					echo '					<td>' . $row[$entityfield['fieldid']] . '</td>';
-				}
-				
+				}		
 			}
 			echo "\n";
 			echo "				</tr>\n";
 		}
 ?>
-	</table>
+	</table></td></table>
 	
 	<input type="hidden" name="entityid" id="entityid" value="<?php echo $entityid; ?>">
 
 	<table border="0" align="left">
 		<tr>
-			<td><button class="button button1" value="Edit" onclick="edit();">Edit</button></td>
-			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Back</button></td>
+			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
+			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
 		</tr>
 	</table>
 </body>

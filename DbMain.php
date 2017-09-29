@@ -19,6 +19,7 @@
 <body bgcolor="white">
 	<?php 
 		require 'include/sessioncheck.php';
+		require 'include/commonclass.php';
 		require 'include/header.php'; 
 		require 'include/footer.php';
 	?>
@@ -86,12 +87,8 @@
 		
 		<div class="dropdown" <?php if ($UserRole != "DM") { echo "hidden";} ?>>
 			<button class="dropbtn" onclick="meraFunction('DatabaseDropdown')">Database</button>
-			<div class="dropdown-content" id="DatabaseDropdown">
-				<a href="EditEmployee.php">Employee</a> 
-				<a href="EditProject.php">Project</a>
-				<a href="EditCompany.php">Company</a>
-				<a href="EditContact.php">Contact</a>
-				<a href="EditUser.php">User</a>
+			<div class="dropdown-content" id="DatabaseDropdown">	
+				<?php echo generateDatabaseMenu();	//generate phpcode for menu items ?>
 			</div>
 		</div>
 

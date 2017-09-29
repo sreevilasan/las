@@ -411,4 +411,24 @@ function getSeatNumber(){
 	
 	return $employeeName;	
 }
+
+function generateDatabaseMenu() {
+	$db = new Database();	// open database
+	
+	$sql = 'select * from entity where menu="Y"';
+	$rows = $db->select($sql);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	
+	$menustring = "";
+	foreach ($rows as $row) {
+		$menustring .= '<a href="EntitySearch.php?entityid=' . $row['entityid'] . '">' . $row['description'] . '</a>';
+	}
+	
+	$db->close();
+	
+	return $menustring;
+}
 ?>
