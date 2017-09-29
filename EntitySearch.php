@@ -58,6 +58,23 @@
 			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value;
 		}
 		
+		function deleteEntity(entityid, primarykey, entitydescription, objectdescription) {
+			if (confirm("Do you want to delete " + entitydescription + " : " + objectdescription) == true) {
+				var xmlhttp = new XMLHttpRequest();
+				
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						//activityId.innerHTML = this.responseText;
+						document.getElementById(primarykey).style.display = "none";
+					}
+				};
+
+				xmlhttp.open("GET", "EntityDelete.php?entityid=" + entityid + "&primarykey=" + primarykey, true);
+				xmlhttp.send();
+			} 
+
+		}
+		
 	</script>
 </head>
 	
@@ -105,7 +122,7 @@
 <?php
 		foreach ($rows as $row)
 		{
-			echo '				<tr>';
+			echo '				<tr id="' . $row[$entityprimcol] . '">';
 			
 			if ($entityedit == 'Y') {
 				echo '<td><a href="EntityAddUpd.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Edit</a></td>';
@@ -114,7 +131,7 @@
 				echo '<td><a href="EntityDisplay.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">View</a></td>';
 			}
 			if ($entitydelete == 'Y') {
-				echo '<td><a href="EntityDelete.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Delete</a></td>';
+				echo '<td><a href="javascript:deleteEntity(\'' . $entityid . '\', \'' . $row[$entityprimcol] . '\', \'' . $entitydescription . '\', \'' . $row[$entitydescol] . '\')">Delete</a></td>';
 			}	
 			
 			foreach ($entityfields as $entityfield) {

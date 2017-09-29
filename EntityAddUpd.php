@@ -112,7 +112,6 @@
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
-		print_r($_POST);
 		
 		if($_POST['dataModified'] == "true") {
 			if ($primarykey != "") {	// update existing record
@@ -131,7 +130,7 @@
 				$updatesql = substr($updatesql, 0, (strlen($updatesql) - 2));
 				
 				$updatesql = "UPDATE " . $entityprimtable . " SET " . $updatesql . " WHERE " . $entityprimcol . " = '" . $primarykey . "';";
-				echo $updatesql;
+				//echo $updatesql;
 				
 				$db->query($updatesql);
 				if ($db->getError() != "") {
@@ -158,7 +157,7 @@
 					$values = substr($values, 0, (strlen($values) - 2));
 					
 					$insertsql = "INSERT INTO " . $entityprimtable . " (" . $insertsql . ") VALUES (" . $values . ");";
-					echo $insertsql;
+					//echo $insertsql;
 					$db->query($insertsql);
 					if ($db->getError() != "") {
 						echo $db->getError();
@@ -171,7 +170,7 @@
 						exit();
 					}
 					
-					echo $row['id'];						
+					$primarykey = $row['id'];						
 			}
 		}
 		//header("location:EntityDisplay.php?entityid=" . $entityid . "&primarykey=" . $primarykey);
