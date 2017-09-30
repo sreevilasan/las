@@ -173,8 +173,8 @@
 					$primarykey = $row['id'];						
 			}
 		}
-		//header("location:EntityDisplay.php?entityid=" . $entityid . "&primarykey=" . $primarykey);
-		//exit();
+		header("location:EntitySearch.php?entityid=" . $entityid);
+		exit();
 	}
 //echo "primarykey=".$primarykey.":";
 	
@@ -270,6 +270,9 @@
 		}
 	
 		function validEmail(em) {
+			if (em == "") {
+				return true;
+			}
 			i = em.indexOf("@");
 			ems = em.substr(i, em.length);
 			if ((i > 0) && (ems.indexOf(".") > 0) && em.length > 5) {
@@ -318,10 +321,10 @@
 		function quitWithoutSaving() {
 			if (document.getElementById('dataModified').value == "true") {
 				if (confirm("Data not saved. Do you really want to quit without saving modified values?") == true) {
-					document.location = "DbMain.php"; // go to lasdb link
+					document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
 				} 	
 			} else {
-				document.location = "DbMain.php"; // go to ENTITY main page
+				document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
 			}
 		}
 		

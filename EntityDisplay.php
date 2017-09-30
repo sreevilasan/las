@@ -56,7 +56,7 @@
 	<link rel="stylesheet" href="css/LasStyle.css">
 	<script type="text/javascript">
 		function quit() {
-			document.location = "DbMain.php"; // go to entity main page
+			document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
 		}
 		
 		function edit() {
