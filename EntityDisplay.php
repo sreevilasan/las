@@ -77,7 +77,7 @@
 		echo '</tr><tr>';
 
 		if ($displayphoto == "Y") {
-			echo '<td valign="top"><img src="' . $imagefile . '" height="100" width="80"></td>';
+			echo '<td valign="top"><a href="' . $imagefile .'"><img src="' . $imagefile . '" height="100" width="80"></a></td>';
 		}
 		echo '<td>';
 		
@@ -93,7 +93,15 @@
 				echo "				<tr>\n";
 				echo '					<th align="left">' . $entityfield['description'] . '</th>';
 				echo "\n";
-				echo '					<td>' . $entityfield['value'] . '</td>';
+				if($entityfield['displaytype'] == "date") {
+					$date=date_create($entityfield['value']);
+					echo '<td>' .  date_format($date,"d-M-Y") . '</td>';
+				} elseif($entityfield['displaytype'] == "entity") {
+					echo '<td>' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</td>';	
+				} else {
+					echo '<td>' . $entityfield['value'] . '</td>';	
+				}
+
 				echo "\n";
 				echo "				</tr>\n";
 			}

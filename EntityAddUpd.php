@@ -7,94 +7,6 @@
 	require 'include/sessioncheck.php';
 	require 'include/commonclass.php';
 	require 'include/Header.php';
-
-	function getEntityDescription($v_entityid, $v_primarykey) {
-		$db = new Database();	// open database
-
-		$sql = "SELECT * FROM entity where entityid='" . $v_entityid . "'";
-
-		$row = $db->select($sql, [], true);
-		
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
-		}
-
-		$v_entityprimtable = $row['primtable'];
-		$v_entityprimcol = $row['primcol'];
-		$v_entitydescol = $row['descol'];
-		
-		$entitydescsql = "SELECT " . $v_entitydescol . " FROM " . $v_entityprimtable . " WHERE " . $v_entityprimcol . " = '" . $v_primarykey . "';";
-
-		$row = $db->select($entitydescsql, [], true);
-		
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
-		}
-		
-		$v_desc = $row[$v_entitydescol];
-		$db->close();
-// echo"entity=".$v_entityid."primekey=".$v_primarykey. "desc=".$v_desc."descol=".$v_entitydescol;
-
-		return $v_desc;
-	}
-	
-	function getLookupDropdown($lookupid, $lookupval = ""){
-		$db = new Database();	// open database
-		
-		$sql = "SELECT value, description FROM lookupval where lookupid = '" . $lookupid . "';";
-		$rows = $db->select($sql);
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
-		}
-		
-		// putting blank option at start of dropdown
-		$dropdownString = "\n								<option disabled selected></option> ";
-		
-		// Looping through query output and creating dropdown
-		foreach ($rows as $row)
-		{
-			if ($lookupval == $row['value']) {
-				$dropdownString = $dropdownString . "\n								<option selected value=\"" . $row['value'] . "\">" . $row['description'] . "</option> ";
-			} else {
-				$dropdownString = $dropdownString . "\n								<option value=\"" . $row['value'] . "\">" . $row['description'] . "</option> ";
-			}
-		}
-		
-		$db->close();
-		
-		return $dropdownString;
-	} 
-	
-	function getLookupRadio($lookupid, $lookupval = "", $fieldname = ""){
-		$db = new Database();	// open database
-		
-		$sql = "SELECT value, description FROM lookupval where lookupid = '" . $lookupid . "' order by displayseq;";
-		$rows = $db->select($sql);
-		if ($db->getError() != "") {
-			echo $db->getError();
-			exit();
-		}
-		
-		// putting blank option at start of dropdown
-		$dropdownString = "";
-		
-		// Looping through query output and creating dropdown
-		foreach ($rows as $row)
-		{
-			if ($lookupval == $row['value']) {
-				$dropdownString = $dropdownString . '<input type="radio" onchange="updateModifiedFlag();" name="' . $fieldname . '" id="' . $fieldname . '" checked value="' . $row['value'] . '">' . $row['description'] . '&nbsp;&nbsp;&nbsp;&nbsp;';
-			} else {
-				$dropdownString = $dropdownString . '<input type="radio" onchange="updateModifiedFlag();" name="' . $fieldname . '" id="' . $fieldname . '" value="' . $row['value'] . '">' . $row['description'] . '&nbsp;&nbsp;&nbsp;&nbsp;';
-			}
-		}
-		
-		$db->close();
-		
-		return $dropdownString;
-	}
 	
 	// get data from GET variables
 	$entityid = $_GET['entityid']; 
@@ -173,10 +85,10 @@
 					$primarykey = $row['id'];						
 			}
 		}
-		header("location:EntitySearch.php?entityid=" . $entityid);
-		exit();
+		//header("location:EntitySearch.php?entityid=" . $entityid);
+		//exit();
 	}
-//echo "primarykey=".$primarykey.":";
+
 	
 	if ($primarykey != "") {
 		
@@ -358,7 +270,7 @@
 			echo '<h1>' . $entitydescription. ' </h1></td>';
 ?>
 			<td><button class="button button1" type="submit" form="entityform" value="Save" onclick="">Save</button></td>
-			<td><button class="button button1" type="button" value="Quit" onclick="quitWithoutSaving();">Cancel</button></td>
+			<td><button class="button button1" type="button" value="Quit" onclick="quitWithoutSaving();">Quit</button></td>
 <?php
 		echo '</tr><tr>';
 		if ($displayphoto == "Y") {
@@ -451,7 +363,7 @@
 	<table border="0" align="left">
 		<tr>
 			<td><button class="button button1" type="submit" form="entityform" value="Save" onclick="">Save</button></td>
-			<td><button class="button button1" type="button" value="Quit" onclick="quitWithoutSaving();">Cancel</button></td>
+			<td><button class="button button1" type="button" value="Quit" onclick="quitWithoutSaving();">Quit</button></td>
 		</tr>
 	</table>
 </body>

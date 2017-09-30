@@ -23,7 +23,7 @@
 	$displayphoto = $row['displayphoto'];
 	$entitymenu = $row['menu'];
 	$imagefile = "images/photo/". $entitydescription . '-' . $primarykey . ".jpg";
-	
+//echo "image=".$imagefile;	
 	$sql = "SELECT * FROM entityfields where entityid='" . $entityid . "' order by displayseq";
 	$rows = $db->select($sql);
 	
