@@ -14,7 +14,7 @@
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
-		$entityid = $_POST['entityid'];
+		$entityid = $_POST['_entityid'];
 		$primarykey = $_POST['primarykey']; 
 	}
 	
@@ -56,11 +56,11 @@
 	<link rel="stylesheet" href="css/LasStyle.css">
 	<script type="text/javascript">
 		function quit() {
-			document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
+			document.location = "EntitySearch.php?entityid=" + document.getElementById('_entityid').value
 		}
 		
 		function edit() {
-			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
+			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('_entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
 		}
 	</script>
 	</head>
@@ -111,7 +111,7 @@
 		echo "</tr></table>";
 
 ?>		
-		<input type="hidden" name="entityid" id="entityid" value="<?php echo $entityid; ?>">
+		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
 		<input type="hidden" name="primarykey" id="primarykey" value="<?php echo $primarykey; ?>">
 		
 		<table border="0" align="left">

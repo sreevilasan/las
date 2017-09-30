@@ -15,6 +15,9 @@
 	$entitydescription = $row['description'];
 	$entityprimtable = $row['primtable'];
 	$entityprimcol = $row['primcol'];
+	$entityprimcol2 = $row['primcol2'];
+	$entityprimcol3 = $row['primcol3'];
+	$entityprimcol4 = $row['primcol4'];	
 	$entitydescol = $row['descol'];
 	$selfgenprimkey = $row['selfgenprimkey'];
 	$entityview = $row['view'];
@@ -38,6 +41,7 @@
 	{
 		$entityfield['fieldid'] = $row['fieldid'];
 		$entityfield['description'] = $row['description'];
+		$entityfield['comment'] = $row['comment'];
 		$entityfield['displayseq'] = $row['displayseq'];
 		$entityfield['displaytype'] = $row['displaytype'];
 		$entityfield['width'] = $row['width'];
@@ -50,6 +54,8 @@
 		$entityfield['search'] = $row['search'];
 		$entityfield['required'] = $row['required'];
 		$entityfield['disable'] = $row['disable'];
+		$entityfield['filterable'] = $row['filterable'];
+		$entityfield['filteroperator'] = $row['filteroperator'];
 		$entityfields[$row['fieldid']] = $entityfield;
 	}
 	

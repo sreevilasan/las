@@ -13,7 +13,7 @@
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
-		$entityid = $_POST['entityid'];
+		$entityid = $_POST['_entityid'];
 	}
 	
 	require 'include/GetEntityFields.php';
@@ -28,7 +28,30 @@
 	}
 	$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));
 	
-	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . ";";
+	$filtermap;
+	$entityfilterclause = "where 1=1 ";
+	
+	foreach ($entityfields as $entityfield)
+	{
+		//$entitysql = $entitysql . $entityfield['fieldid'] . " , ";
+		if($entityfield['filterable'] == "Y") {
+			$filtervalue = "";
+			$filtervalue = $_GET['filter_' . $entityfield['fieldid']]; 
+			if($_SERVER['REQUEST_METHOD'] == 'POST') {
+				$filtervalue = $_POST['filter_' . $entityfield['fieldid']];
+			}
+			$tempfilter['fieldid'] = $entityfield['fieldid'];
+			$tempfilter['filteroperator'] = $entityfield['filteroperator'];
+			$tempfilter['value'] = $filtervalue;
+			$filtermap[$entityfield['fieldid']] = $tempfilter; 
+			if ($filtervalue != "") {
+				$entityfilterclause = $entityfilterclause . " and lower("  . $tempfilter['fieldid'] . ") " . $tempfilter['filteroperator'] . " lower('" . $filtervalue . "')";
+			}
+		}
+	}
+
+	
+	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " " . $entityfilterclause . ";";
 
 	$rows = $db->select($entitysql);
 	if ($db->getError() != "") {
@@ -52,10 +75,10 @@
 		}
 		
 		function edit() {
-			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
+			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('_entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
 		}
 		function addnew() {
-			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('entityid').value;
+			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('_entityid').value;
 		}
 		
 		function deleteEntity(entityid, primarykey, entitydescription, objectdescription) {
@@ -80,19 +103,39 @@
 	
 <body onload=";">
 
-<?php
-		echo '<table class="tabinput" border="0">';      // main title
-		echo '<tr><td colspan="2">';
-			echo '<h1>' . $entitydescription. ' </h1></td>';
-?>
+	<table class="tabinput" border="0">
+		<tr>
+			<td colspan="2">
+				<h1><?php echo $entitydescription; ?></h1>
+			</td>
 			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
 			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
-<?php
-		echo '</tr><tr><td>';
-?>
-	
-		<table class="tabinput" border="1">
+		</tr>
+	</table>
+	<br>
+	<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="filterform" onsubmit=";">
+		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
+		<table class="tabinput" border="0">
 			<tr>
+<?php
+			foreach ($entityfields as $entityfield)
+			{
+				
+				if($entityfield['filterable'] == "Y") {
+					echo '					<th>' . $entityfield['description'] . '</th>';
+					echo '					<td><input type="text" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '"></td>';
+				}
+				
+			}
+?>
+				<td><button class="button button1" type="submit" form="filterform" value="Go" onclick=";">Go</button></td>
+			</tr>
+
+		</table>
+	</form>
+	<br>
+	<table class="tabinput" border="1">
+		<tr>
 <?php
 
 			if ($entityedit == 'Y') {
@@ -118,7 +161,7 @@
 				
 			}
 ?>
-			</tr>
+		</tr>
 <?php
 		foreach ($rows as $row)
 		{
@@ -146,9 +189,9 @@
 			echo "				</tr>\n";
 		}
 ?>
-	</table></td></table>
+	</table>
 	
-	<input type="hidden" name="entityid" id="entityid" value="<?php echo $entityid; ?>">
+
 
 	<table border="0" align="left">
 		<tr>

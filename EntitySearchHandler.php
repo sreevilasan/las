@@ -14,7 +14,7 @@
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
-		$entityid = $_POST['entityid'];
+		$entityid = $_POST['_entityid'];
 	}
 
 	require 'include/GetEntityFields.php';
@@ -50,7 +50,7 @@
 	<script type="text/javascript">
 		function closeMySelf(sender) {
 			try {
-				window.opener.HandlePopupResult(document.getElementById('entityid').value, document.getElementById('fieldid').value, sender.getAttribute("primarykey"), sender.getAttribute("description"));
+				window.opener.HandlePopupResult(document.getElementById('_entityid').value, document.getElementById('_fieldid').value, sender.getAttribute("primarykey"), sender.getAttribute("description"));
 			}
 			catch (err) {}
 			window.close();
@@ -98,7 +98,7 @@
 			}
 ?>
 			</table>
-			<input type="hidden" name="entityid" id="entityid" value="<?php echo $entityid; ?>">
-			<input type="hidden" name="fieldid" id="fieldid" value="<?php echo $fieldid; ?>">
+			<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
+			<input type="hidden" name="_fieldid" id="_fieldid" value="<?php echo $fieldid; ?>">
 	</body>
 </html>

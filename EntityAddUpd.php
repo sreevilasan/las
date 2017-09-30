@@ -14,7 +14,7 @@
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
-		$entityid = $_POST['entityid'];
+		$entityid = $_POST['_entityid'];
 		$primarykey = $_POST['primarykey']; 
 	}
 
@@ -56,7 +56,11 @@
 					foreach ($entityfields as $entityfield)
 					{
 						if ($entityfield['fieldid'] == $entityprimcol) {
-							continue;
+							if($selfgenprimkey == "Y") {
+								continue;
+							} else {
+								$primarykey = $_POST[$entityfield['fieldid']];
+							}
 						}
 						$insertsql = $insertsql . $entityfield['fieldid'] . " , ";
 						if ($_POST[$entityfield['fieldid']] == "") {	
@@ -69,20 +73,22 @@
 					$values = substr($values, 0, (strlen($values) - 2));
 					
 					$insertsql = "INSERT INTO " . $entityprimtable . " (" . $insertsql . ") VALUES (" . $values . ");";
-					//echo $insertsql;
+					echo $insertsql;
 					$db->query($insertsql);
 					if ($db->getError() != "") {
 						echo $db->getError();
 						exit();
 					}
 
-					$row = $db->select("SELECT LAST_INSERT_ID() as id;", [], true);
-					if ($db->getError() != "") {
-						echo $db->getError();
-						exit();
-					}
+					if($selfgenprimkey == "Y") {
+						$row = $db->select("SELECT LAST_INSERT_ID() as id;", [], true);
+						if ($db->getError() != "") {
+							echo $db->getError();
+							exit();
+						}
 					
-					$primarykey = $row['id'];						
+						$primarykey = $row['id'];
+					}
 			}
 		}
 		//header("location:EntitySearch.php?entityid=" . $entityid);
@@ -233,10 +239,10 @@
 		function quitWithoutSaving() {
 			if (document.getElementById('dataModified').value == "true") {
 				if (confirm("Data not saved. Do you really want to quit without saving modified values?") == true) {
-					document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
+					document.location = "EntitySearch.php?entityid=" + document.getElementById('_entityid').value
 				} 	
 			} else {
-				document.location = "EntitySearch.php?entityid=" + document.getElementById('entityid').value
+				document.location = "EntitySearch.php?entityid=" + document.getElementById('_entityid').value
 			}
 		}
 		
@@ -321,7 +327,7 @@
 			}
 			
 			echo "				<tr $hidden>\n";
-			echo '					<th align="right">' . $entityfield['description'] .': ' . '</th>';
+			echo '					<th title="' . $entityfield['comment'] . '" align="right">' . $entityfield['description'] .': ' . '</th>';
 			echo "\n";
 			
 			if($entityfield['displaytype'] == "lookup") {
@@ -341,7 +347,7 @@
 				//echo '<input value="' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '">';						
 				echo '					<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</span></td>';				
 			} else {
-				echo '					<td><input onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"></td>';
+				echo '					<td><input title="' . $entityfield['comment'] . '" onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"></td>';
 			}
 			echo "\n";
 			
@@ -351,7 +357,7 @@
 		</table>
 		</td></tr></table>
 		
-		<input type="hidden" name="entityid" id="entityid" value="<?php echo $entityid; ?>">
+		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
 		<input type="hidden" name="primarykey" id="primarykey" value="<?php echo $primarykey; ?>">
 		<input type="hidden" name="dataModified" id="dataModified" value=false>
 		<input type="hidden" name="sessionid" id="sessionid" value="<?php echo $EmpId; ?>">
