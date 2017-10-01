@@ -241,7 +241,7 @@ function createDropDown($table, $column1, $column2){
 } 
 
 // Function to return dropdown string
-function createDropDownString($table, $column1, $column2, $selectString){
+function createDropDownString($table, $column1, $column2, $selectString, $disable = "disabled"){
 	$db = new Database();	// open database
 	$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table . ";";
 	$rows = $db->select($sql);
@@ -251,7 +251,7 @@ function createDropDownString($table, $column1, $column2, $selectString){
 	}
 	
 	// putting blank option at start of dropdown
-	$dropdownString = "\n								<option disabled selected></option> ";
+	$dropdownString = "\n								<option " . $disable . " selected></option> ";
 	
 	// Looping through query output and creating dropdown
 	foreach ($rows as $row)
@@ -412,10 +412,15 @@ function getSeatNumber(){
 	return $employeeName;	
 }
 
-function generateDatabaseMenu() {
+function generateDatabaseMenu($option=0) {
 	$db = new Database();	// open database
 	
-	$sql = 'select * from entity where menu="Y" order by displayseq';
+	if ($option == 9) {
+		$sql = 'select * from entity order by displayseq';
+	} else {
+		$sql = 'select * from entity where menu="Y" order by displayseq';
+	}
+	
 	$rows = $db->select($sql);
 	if ($db->getError() != "") {
 		echo $db->getError();
@@ -518,5 +523,47 @@ function generateDatabaseMenu() {
 		$db->close();
 		
 		return $dropdownString;
+	}
+	
+	function isSearchable($v_entityid){
+		$db = new Database();	// open database
+
+		$sql = "SELECT distinct(search) FROM entityfields where entityid='" . $v_entityid . "'";
+		$rows = $db->select($sql);
+		if ($db->getError() != "") {
+			echo $db->getError();
+			exit();
+		}
+		
+		$searchable = false;
+		foreach ($rows as $row)
+		{
+			if ($row['search'] == "Y") {
+				$searchable = true;
+			}
+		}
+		
+		$db->close();
+
+		return $searchable;
+	}
+	
+	function getDropdownValue($reftable, $refvalcol, $refdescol, $refvalue) {
+		$returnvalue = $refvalue;
+		
+		$db = new Database();	// open database
+	
+		$sql = "select " . $refdescol . " from " . $reftable . " where " . $refvalcol . "='" . $refvalue . "';";
+
+		$row = $db->select($sql, [], true);
+		if ($db->getError() != "") {
+			echo $db->getError();
+			exit();
+		}
+		$returnvalue = $row[$refdescol];
+		
+		$db->close();
+		
+		return $returnvalue;	
 	}
 ?>

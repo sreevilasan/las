@@ -85,10 +85,17 @@
 			</div>
 		</div> 
 		
-		<div class="dropdown" <?php if ($UserRole != "DM") { echo "hidden";} ?>>
+		<div class="dropdown" <?php if ($UserRole != "DM")  { echo "hidden";} ?>>
 			<button class="dropbtn" onclick="meraFunction('DatabaseDropdown')">Database</button>
 			<div class="dropdown-content" id="DatabaseDropdown">	
 				<?php echo generateDatabaseMenu();	//generate phpcode for menu items ?>
+			</div>
+		</div>
+		
+		<div class="dropdown" <?php if ($UserRole != "DA") { echo "hidden";} ?>>
+			<button class="dropbtn" onclick="meraFunction('DbaDropdown')">Database</button>
+			<div class="dropdown-content" id="DbaDropdown">	
+				<?php echo generateDatabaseMenu(9);	//generate phpcode for menu items ?>
 			</div>
 		</div>
 
@@ -141,6 +148,9 @@ function meraFunction(s) {
 	if(s != 'DatabaseDropdown') {
 		document.getElementById('DatabaseDropdown').classList.remove('show');
 	}
+	if(s != 'DbaDropdown') {
+		document.getElementById('DbaDropdown').classList.remove('show');
+	}
 	if(s != 'myDropdown') {
 		document.getElementById('myDropdown').classList.remove('show');
 	}
@@ -155,6 +165,9 @@ window.onclick = function(e) {
 		document.getElementById('projectDropdown').classList.remove('show');
 		document.getElementById('companyDropdown').classList.remove('show');
 		document.getElementById('contactDropdown').classList.remove('show');
+		document.getElementById('reportDropdown').classList.remove('show');
+		document.getElementById('DatabaseDropdown').classList.remove('show');
+		document.getElementById('DbaDropdown').classList.remove('show');
 		document.getElementById('myDropdown').classList.remove('show');
 	}
 

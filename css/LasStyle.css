@@ -29,7 +29,12 @@ p
 	padding-right: 2px;
 	padding-left: 2px;
 }
-.tabinput th, td {
+.tabinput th {
+	background-color: lightgrey;
+	padding-right: 2px;
+	padding-left: 2px;
+}
+.tabinput td {
 	padding-right: 8px;
 	padding-left: 8px;
 }

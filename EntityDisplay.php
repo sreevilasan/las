@@ -96,6 +96,8 @@
 				if($entityfield['displaytype'] == "date") {
 					$date=date_create($entityfield['value']);
 					echo '<td>' .  date_format($date,"d-M-Y") . '</td>';
+				} elseif($entityfield['displaytype'] == "dropdown") {
+					echo '<td>' . getDropdownValue($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $entityfield['value']) . '</td>';
 				} elseif($entityfield['displaytype'] == "entity") {
 					echo '<td>' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</td>';	
 				} else {

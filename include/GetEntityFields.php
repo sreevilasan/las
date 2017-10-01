@@ -54,8 +54,7 @@
 		$entityfield['search'] = $row['search'];
 		$entityfield['required'] = $row['required'];
 		$entityfield['disable'] = $row['disable'];
-		$entityfield['filterable'] = $row['filterable'];
-		$entityfield['filteroperator'] = $row['filteroperator'];
+		
 		$entityfields[$row['fieldid']] = $entityfield;
 	}
 	
