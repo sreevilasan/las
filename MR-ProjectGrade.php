@@ -36,6 +36,9 @@ function loadFromToDate() {
 	}
 }
 
+function quit() {
+	document.location = "DbMain.php"; // go to entity main page
+}
 
 </script>
 
@@ -54,9 +57,10 @@ function loadFromToDate() {
 	<?php
 		echo '<select name="prjid" id="prjid">'. createDropDownProject("project", "prjid", "name", $PrjId) . '</select>';
 	?>
-	</td><td width="100px">
-		<button class="button button2" type="submit" form="ProjectGradeForm" value="Run">CreateReport</button>
-	</td></tr></table>
+	</td>
+	<td><button class="button button1" type="submit" form="ProjectGradeForm" value="Run">CreateReport</button></td>
+	<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
+	</tr></table>
 </form>
 
 <?php

@@ -152,12 +152,10 @@
 						var d = new Date();
 						var nd = d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()+" "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
 						document.getElementById(mapKeyVal["fieldid"]).value = nd;
-					} else if (mapKeyVal["fieldid"] == "branchid") {
-						document.getElementById(mapKeyVal["fieldid"]).value = "01";
-					} else if (mapKeyVal["fieldid"] == "empfile") {
-						document.getElementById(mapKeyVal["fieldid"]).value = "EMP-"+employeeNumber(document.getElementById("primarykey").value)+".docx";
-					} else if (mapKeyVal["fieldid"] == "comfile") {
-						document.getElementById(mapKeyVal["fieldid"]).value = "COM-"+companyNumber(document.getElementById("primarykey").value)+".docx";
+					//} else if (mapKeyVal["fieldid"] == "empfile") {
+					//	document.getElementById(mapKeyVal["fieldid"]).value = "EMP-"+employeeNumber(document.getElementById("primarykey").value)+".docx";
+					//} else if (mapKeyVal["fieldid"] == "comfile") {
+					//	document.getElementById(mapKeyVal["fieldid"]).value = "COM-"+companyNumber(document.getElementById("primarykey").value)+".docx";
 					}
 				}
 			}

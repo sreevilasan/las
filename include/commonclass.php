@@ -415,9 +415,13 @@ function getSeatNumber(){
 function generateDatabaseMenu($option=0) {
 	$db = new Database();	// open database
 	
-	if ($option == 9) {
-		$sql = 'select * from entity order by displayseq';
-	} else {
+	if ($option == 1) {  // DM
+		$sql = 'select * from entity where menu="Y" and displayseq < 20 order by displayseq';
+	} else if ($option == 2) {  // DM
+		$sql = 'select * from entity where menu="Y" and displayseq >= 20 and displayseq < 50 order by displayseq';
+	} else if ($option == 9) {  // DA
+		$sql = 'select * from entity where displayseq >= 50 order by displayseq';
+	} else { // DM
 		$sql = 'select * from entity where menu="Y" order by displayseq';
 	}
 	

@@ -22,7 +22,7 @@
 	$selfgenprimkey = $row['selfgenprimkey'];
 	$entityview = $row['view'];
 	$entityedit = $row['edit'];
-	$entitydelete = $row['delete'];
+	$entitydelete = $row['remove'];
 	$displayphoto = $row['displayphoto'];
 	$entitymenu = $row['menu'];
 	$imagefile = "images/photo/". $entitydescription . '-' . $primarykey . ".jpg";

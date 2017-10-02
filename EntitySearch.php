@@ -75,7 +75,7 @@
 
 	
 	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " " . $entityfilterclause . ";";
-echo $entitysql;
+
 	$rows = $db->select($entitysql);
 	if ($db->getError() != "") {
 		echo $db->getError();
@@ -182,6 +182,8 @@ echo $entitysql;
 						echo '<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</span>';
 					} else if ($entityfield['displaytype'] == 'dropdown') {
 						echo '<select name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" >' . createDropDownString($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $filtermap[$entityfield['fieldid']]['value'], ""). '</select>';
+					} else if ($entityfield['displaytype'] == 'date') {
+						echo '<input type="date" size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '">';
 					} else {
 						echo '<input type="text" size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '">';
 					}
@@ -195,7 +197,7 @@ echo $entitysql;
 <?php } ?>
 
 <?php
-		foreach ($rows as $row)		//for all selected rows
+		foreach ($rows as $row)		//display all selected rows 
 		{
 			echo '				<tr id="' . $row[$entityprimcol] . '">';
 			
@@ -221,6 +223,9 @@ echo $entitysql;
 						echo getEntityDescription($entityfield['refentityid'], $row[$entityfield['fieldid']]);
 					} else if ($entityfield['displaytype'] == 'dropdown') {
 						echo getDropdownValue($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $row[$entityfield['fieldid']]);
+					} else if ($entityfield['displaytype'] == 'date') {
+						$date=date_create($row[$entityfield['fieldid']]);
+						echo date_format($date,"d-M-Y");
 					} else {
 						echo $row[$entityfield['fieldid']];
 					}

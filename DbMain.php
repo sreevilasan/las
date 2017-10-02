@@ -31,8 +31,7 @@
 			<button class="dropbtn" onclick="meraFunction('projectDropdown')">Project</button>
 			<div class="dropdown-content" id="projectDropdown">
 				<a href="projectdetails.php">View Project</a>
-				<a href="#addprj">Add New Project</a>
-				<a href="PrjContactDetails.php">Project Contact</a>
+				<a href="#helpcom">Help</a>
 			</div>
 		</div> 
 		
@@ -40,7 +39,6 @@
 			<button class="dropbtn" onclick="meraFunction('companyDropdown')">Company</button>
 			<div class="dropdown-content" id="companyDropdown">
 				<a href="companydetails.php">View Company</a>
-				<a href="#addcom">Add New Company</a>
 				<a href="#helpcom">Help</a>
 			</div>
 		</div> 
@@ -49,7 +47,6 @@
 			<button class="dropbtn" onclick="meraFunction('contactDropdown')">Contact</button>
 			<div class="dropdown-content" id="contactDropdown">
 				<a href="contactdetails.php">View Contact</a>
-				<a href="#addcon">Add New Contact</a>
 				<a href="#helpcon">Help</a>
 			</div>
 		</div> 
@@ -61,7 +58,6 @@
 			<button class="dropbtn" onclick="meraFunction('employeeDropdown')">Employee</button>
 			<div class="dropdown-content" id="employeeDropdown">
 				<a href="employeedetails.php">View Employee</a>
-				<a href="AddEmployee.php">Add New Employee</a>
 				<a href="SeatingArrangement.php">Seating Arrangement</a>
 			</div>
 		</div> 
@@ -76,7 +72,7 @@
 			</div>
 		</div> 
 	
-		<div class="dropdown" <?php if ($UserRole != "DM") { echo "hidden";} ?>>
+		<div class="dropdown" <?php if (!(($UserRole == "DA") || ($UserRole == "DM"))) { echo "hidden";} ?>>
 			<button class="dropbtn" onclick="meraFunction('reportDropdown')">Reports</button>
 			<div class="dropdown-content" id="reportDropdown">
 				<a href="MR-ProjectGrade.php">Project Manhour Cost</a> 
@@ -85,15 +81,15 @@
 			</div>
 		</div> 
 		
-		<div class="dropdown" <?php if ($UserRole != "DM")  { echo "hidden";} ?>>
+		<div class="dropdown" <?php if (!(($UserRole == "DA") || ($UserRole == "DM"))) { echo "hidden";} ?>>
 			<button class="dropbtn" onclick="meraFunction('DatabaseDropdown')">Database</button>
 			<div class="dropdown-content" id="DatabaseDropdown">	
 				<?php echo generateDatabaseMenu();	//generate phpcode for menu items ?>
 			</div>
 		</div>
 		
-		<div class="dropdown" <?php if ($UserRole != "DA") { echo "hidden";} ?>>
-			<button class="dropbtn" onclick="meraFunction('DbaDropdown')">Database</button>
+		<div class="dropdown" <?php if (!($UserRole == "DA")) { echo "hidden";} ?>>
+			<button class="dropbtn" onclick="meraFunction('DbaDropdown')">DBA</button>
 			<div class="dropdown-content" id="DbaDropdown">	
 				<?php echo generateDatabaseMenu(9);	//generate phpcode for menu items ?>
 			</div>

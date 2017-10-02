@@ -52,6 +52,10 @@ function loadFromToDate() {
 	}
 }
 
+function quit() {
+	document.location = "DbMain.php"; // go to entity main page
+}
+
 </script>
 
 </head>
@@ -66,9 +70,9 @@ function loadFromToDate() {
 		<td>
 			To Date:<input type="date" name="toDate" id="toDate" value="<?php echo $toDate; ?>">
 		</td>
-		<td width="100px">
-			<button class="button button2" type="submit" form="MR-SummaryForm" value="Run" onclick=";">CreateReport</button>
-		</td></tr>
+		<td><button class="button button1" type="submit" form="MR-SummaryForm" value="Run" onclick=";">CreateReport</button></td>
+		<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
+		</tr>
 	</table>
 	
 	<br>
