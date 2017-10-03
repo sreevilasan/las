@@ -10,12 +10,18 @@
 	
 	// get data from GET variables
 	$entityid = $_GET['entityid']; 
-	$primarykey = $_GET['primarykey']; 
+	$primarykey = $_GET['primarykey'];
+	$primarykey2 = $_GET['primarykey2']; 
+	$primarykey3 = $_GET['primarykey3']; 
+	$primarykey4 = $_GET['primarykey4']; 
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
 		$entityid = $_POST['_entityid'];
-		$primarykey = $_POST['primarykey']; 
+		$primarykey = $_POST['primarykey'];
+		$primarykey2 = $_POST['primarykey2'];
+		$primarykey3 = $_POST['primarykey3'];
+		$primarykey4 = $_POST['primarykey4'];
 	}
 
 	require 'include/GetEntityFields.php';
@@ -41,7 +47,21 @@
 				}
 				$updatesql = substr($updatesql, 0, (strlen($updatesql) - 2));
 				
-				$updatesql = "UPDATE " . $entityprimtable . " SET " . $updatesql . " WHERE " . $entityprimcol . " = '" . $primarykey . "';";
+				$updatesql = "UPDATE " . $entityprimtable . " SET " . $updatesql . " WHERE " . $entityprimcol . " = '" . $primarykey . "' ";
+				
+				if($primarykey2 != "") {
+					$updatesql = $updatesql . " AND " . $entityprimcol2 . " = '" . $primarykey2 . "' "; 
+				}
+				
+				if($primarykey3 != "") {
+					$updatesql = $updatesql . " AND " . $entityprimcol3 . " = '" . $primarykey3 . "' "; 
+				}
+				
+				if($primarykey4 != "") {
+					$updatesql = $updatesql . " AND " . $entityprimcol4 . " = '" . $primarykey4 . "' "; 
+				}
+				
+				$updatesql = $updatesql . " ;";
 				//echo $updatesql;
 				
 				$db->query($updatesql);
@@ -62,6 +82,19 @@
 								$primarykey = $_POST[$entityfield['fieldid']];
 							}
 						}
+						
+						if (($entityprimcol2 != "") and ($entityfield['fieldid'] == $entityprimcol2)) {
+							$primarykey2 = $_POST[$entityfield['fieldid']];
+						}
+						
+						if (($entityprimcol3 != "") and ($entityfield['fieldid'] == $entityprimcol3)) {
+							$primarykey3 = $_POST[$entityfield['fieldid']];
+						}
+						
+						if (($entityprimcol4 != "") and ($entityfield['fieldid'] == $entityprimcol4)) {
+							$primarykey4 = $_POST[$entityfield['fieldid']];
+						}						
+						
 						$insertsql = $insertsql . $entityfield['fieldid'] . " , ";
 						if ($_POST[$entityfield['fieldid']] == "") {	
 							$values = $values . " null , ";
@@ -103,8 +136,24 @@
 		{
 			$entitysql = $entitysql . $entityfield['fieldid'] . " , ";
 		}
-		$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));		
-		$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " WHERE " . $entityprimcol . " = '" . $primarykey . "';";
+		$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));	
+		
+		$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " WHERE " . $entityprimcol . " = '" . $primarykey . "' ";
+		
+		if($primarykey2 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol2 . " = '" . $primarykey2 . "' "; 
+		}
+		
+		if($primarykey3 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol3 . " = '" . $primarykey3 . "' "; 
+		}
+		
+		if($primarykey4 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol4 . " = '" . $primarykey4 . "' "; 
+		}
+		
+		$entitysql = $entitysql . " ;";
+		//echo $entitysql;
 
 		$row = $db->select($entitysql, [], true);
 		if ($db->getError() != "") {
@@ -160,12 +209,12 @@
 				}
 			}
 		}
-		function employeeNumber(a) {
-			return a;
-		}
-		function companyNumber(a) {
-			return a;
-		}
+		//function employeeNumber(a) {
+		//	return a;
+		//}
+		//function companyNumber(a) {
+		//	return a;
+		//}
 		
 		function enableFields(){
 			addFunctionValues();
@@ -261,6 +310,10 @@
 			updateModifiedFlag();
 		}
 		
+		function uploadImage(img) {
+			newwindow = window.open('uploadFile.php','_blank','left=400,top=50,height=500,width=600,titlebar=no,toolbar=no,location=no');
+			//if (window.focus) {newwindow.focus();}
+		}
 	
 	</script>
 </head>
@@ -278,7 +331,7 @@
 <?php
 		echo '</tr><tr>';
 		if ($displayphoto == "Y") {
-			echo '<td valign="top"><img src="' . $imagefile . '" height="120" width="100"></td>';
+			echo '<td valign="top"><a href="javascript:uploadImage(\'' . $imagefile . '\');"><img src="' . $imagefile . '" height="120" width="100"><br>Update Photo</a></td>';
 		}
 		echo '<td>';
 		
@@ -343,7 +396,7 @@
 			} elseif($entityfield['displaytype'] == "entity") {
 				echo '					<td><input onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"> <button type="button" onclick="popitup(\'' . $entityfield['refentityid'] . '\', \'' . $entityfield['fieldid'] . '\');">...</button> ';
 				//echo '<input value="' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '">';						
-				echo '					<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</span></td>';				
+				echo '					<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value'], $entityfields[$entityfield['refentityprim1']]['value']) . '</span></td>';				
 			} else {
 				echo '					<td><input title="' . $entityfield['comment'] . '" onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"></td>';
 			}
@@ -357,6 +410,9 @@
 		
 		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
 		<input type="hidden" name="primarykey" id="primarykey" value="<?php echo $primarykey; ?>">
+		<input type="hidden" name="primarykey2" id="primarykey2" value="<?php echo $primarykey2; ?>">
+		<input type="hidden" name="primarykey3" id="primarykey3" value="<?php echo $primarykey3; ?>">
+		<input type="hidden" name="primarykey3" id="primarykey3" value="<?php echo $primarykey3; ?>">
 		<input type="hidden" name="dataModified" id="dataModified" value=false>
 		<input type="hidden" name="sessionid" id="sessionid" value="<?php echo $EmpId; ?>">
 		

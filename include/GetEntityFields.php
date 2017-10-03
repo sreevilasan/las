@@ -25,6 +25,7 @@
 	$entitydelete = $row['remove'];
 	$displayphoto = $row['displayphoto'];
 	$entitymenu = $row['menu'];
+	$entityextrabutton = $row['extrabutton'];
 	$imagefile = "images/photo/". $entitydescription . '-' . $primarykey . ".jpg";
 //echo "image=".$imagefile;	
 	$sql = "SELECT * FROM entityfields where entityid='" . $entityid . "' order by displayseq";
@@ -46,6 +47,9 @@
 		$entityfield['displaytype'] = $row['displaytype'];
 		$entityfield['width'] = $row['width'];
 		$entityfield['refentityid'] = $row['refentityid'];
+		$entityfield['refentityprim1'] = $row['refentityprim1'];
+		$entityfield['refentityprim2'] = $row['refentityprim2'];
+		$entityfield['refentityprim3'] = $row['refentityprim3'];
 		$entityfield['lookupid'] = $row['lookupid'];
 		$entityfield['reftable'] = $row['reftable'];
 		$entityfield['refvalcol'] = $row['refvalcol'];

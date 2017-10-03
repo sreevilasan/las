@@ -441,7 +441,26 @@ function generateDatabaseMenu($option=0) {
 	return $menustring;
 }
 
-	function getEntityDescription($v_entityid, $v_primarykey) {
+	function getEntityDescription($v_entityid, $v_primarykey, $v_primarykey2 = "", $v_primarykey3 = "", $v_primarykey4 = "") {
+		
+		if ($v_primarykey2 != "") {
+			$tempkey = $v_primarykey;
+			$v_primarykey = $v_primarykey2;
+			$v_primarykey2 = $tempkey;
+		}
+		
+		if ($v_primarykey3 != "") {
+			$tempkey = $v_primarykey2;
+			$v_primarykey2 = $v_primarykey3;
+			$v_primarykey3 = $tempkey;
+		}
+		
+		if ($v_primarykey4 != "") {
+			$tempkey = $v_primarykey3;
+			$v_primarykey3 = $v_primarykey4;
+			$v_primarykey4 = $tempkey;
+		}
+		
 		$db = new Database();	// open database
 
 		$sql = "SELECT * FROM entity where entityid='" . $v_entityid . "'";
@@ -455,9 +474,26 @@ function generateDatabaseMenu($option=0) {
 
 		$v_entityprimtable = $row['primtable'];
 		$v_entityprimcol = $row['primcol'];
+		$v_entityprimcol2 = $row['primcol2'];
+		$v_entityprimcol3 = $row['primcol3'];
+		$v_entityprimcol4 = $row['primcol4'];
 		$v_entitydescol = $row['descol'];
 		
-		$entitydescsql = "SELECT " . $v_entitydescol . " FROM " . $v_entityprimtable . " WHERE " . $v_entityprimcol . " = '" . $v_primarykey . "';";
+		$entitydescsql = "SELECT " . $v_entitydescol . " FROM " . $v_entityprimtable . " WHERE " . $v_entityprimcol . " = '" . $v_primarykey . "' ";
+		
+		if($v_primarykey2 != "") {
+			$entitydescsql = $entitydescsql . " AND " . $v_entityprimcol2 . " = '" . $v_primarykey2 . "' "; 
+		}
+		
+		if($v_primarykey3 != "") {
+			$entitydescsql = $entitydescsql . " AND " . $v_entityprimcol3 . " = '" . $v_primarykey3 . "' "; 
+		}
+		
+		if($v_primarykey4 != "") {
+			$entitydescsql = $entitydescsql . " AND " . $v_entityprimcol4 . " = '" . $v_primarykey4 . "' "; 
+		}
+		
+		$entitydescsql = $entitydescsql . " ;";
 
 		$row = $db->select($entitydescsql, [], true);
 		
@@ -569,5 +605,31 @@ function generateDatabaseMenu($option=0) {
 		$db->close();
 		
 		return $returnvalue;	
+	}
+	
+	function addExtraButton($extrabutton) {
+		parse_str($extrabutton,$buttonArray);
+		
+		if ($buttonArray['type'] != "") {
+			$buttonType= 'type="'. $buttonArray['type'] . '"';
+		} else {
+			$buttonType= "";
+		}
+		if ($buttonArray['onclick'] != "") {
+			$buttonOnclick= 'onclick="' . $buttonArray['onclick'] . '"';
+		} else {
+			$buttonOnclick = "";
+		}
+		if ($buttonArray['value'] != "") {
+			$buttonValue= 'value="' . $buttonArray['value'] . '"';
+		} else {
+			$buttonValue = "";
+		}
+		$buttonName = $buttonArray['value'];
+		if ($buttonName == "") {
+			$buttonName = $buttonArray['type'];
+		}
+
+		return '<button class="button button1" ' . $buttonType . ' ' . $buttonValue . ' ' . $buttonOnclick . '">'. $buttonName . '</button>';
 	}
 ?>

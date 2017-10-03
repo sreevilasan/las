@@ -10,12 +10,18 @@
 	
 	// get data from GET variables
 	$entityid = $_GET['entityid']; 
-	$primarykey = $_GET['primarykey']; 
+	$primarykey = $_GET['primarykey'];
+	$primarykey2 = $_GET['primarykey2']; 
+	$primarykey3 = $_GET['primarykey3']; 
+	$primarykey4 = $_GET['primarykey4']; 
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		//echo "Loaded via Posting method</br>";
 		$entityid = $_POST['_entityid'];
-		$primarykey = $_POST['primarykey']; 
+		$primarykey = $_POST['primarykey'];
+		$primarykey2 = $_POST['primarykey2'];
+		$primarykey3 = $_POST['primarykey3'];
+		$primarykey4 = $_POST['primarykey4'];		
 	}
 	
 	require 'include/GetEntityFields.php';
@@ -33,7 +39,21 @@
 		}
 		$entitysql = substr($entitysql, 0, (strlen($entitysql) - 2));
 			
-		$entitysql = "SELECT " . $entitysql . " FROM " . $entityprimtable . " WHERE " . $entityprimcol . " = '" . $primarykey . "';";
+		$entitysql = "SELECT " . $entitysql . " FROM " . $entityprimtable . " WHERE " . $entityprimcol . " = '" . $primarykey . "' ";
+		
+		if($primarykey2 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol2 . " = '" . $primarykey2 . "' "; 
+		}
+		
+		if($primarykey3 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol3 . " = '" . $primarykey3 . "' "; 
+		}
+		
+		if($primarykey4 != "") {
+			$entitysql = $entitysql . " AND " . $entityprimcol4 . " = '" . $primarykey4 . "' "; 
+		}
+		
+		$entitysql = $entitysql . " ;";
 
 		$row = $db->select($entitysql, [], true);
 		
@@ -60,7 +80,11 @@
 		}
 		
 		function edit() {
-			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('_entityid').value + "&primarykey=" + document.getElementById('primarykey').value;
+			document.location = "EntityAddUpd.php?entityid=" + document.getElementById('_entityid').value + "&primarykey=" + document.getElementById('primarykey').value  + "&primarykey2=" + document.getElementById('primarykey2').value  + "&primarykey3=" + document.getElementById('primarykey3').value  + "&primarykey4=" + document.getElementById('primarykey4').value;
+		}
+		function displayImage(img) {
+			newwindow = window.open(img,'_blank','left=400,top=50,height=500,width=600,titlebar=no,toolbar=no,location=no');
+			//if (window.focus) {newwindow.focus();}
 		}
 	</script>
 	</head>
@@ -77,7 +101,7 @@
 		echo '</tr><tr>';
 
 		if ($displayphoto == "Y") {
-			echo '<td valign="top"><a href="' . $imagefile .'"><img src="' . $imagefile . '" height="100" width="80"></a></td>';
+			echo '<td valign="top"><a href="javascript:displayImage(\'' . $imagefile . '\');"><img src="' . $imagefile . '" height="100" width="80"></a></td>';
 		}
 		echo '<td>';
 		
@@ -115,6 +139,9 @@
 ?>		
 		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
 		<input type="hidden" name="primarykey" id="primarykey" value="<?php echo $primarykey; ?>">
+		<input type="hidden" name="primarykey2" id="primarykey2" value="<?php echo $primarykey2; ?>">
+		<input type="hidden" name="primarykey3" id="primarykey3" value="<?php echo $primarykey3; ?>">
+		<input type="hidden" name="primarykey4" id="primarykey4" value="<?php echo $primarykey4; ?>">
 		
 		<table border="0" align="left">
 			<tr>

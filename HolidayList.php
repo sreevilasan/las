@@ -26,8 +26,8 @@
 		exit();
 	}
 	
-	echo '<br><br>';
-	echo '<table class="table10" align="center" border="0"><tr><th><h2>Holiday List</h1><br></th></tr></table>';
+	echo '<br>';
+	echo '<table class="table10" align="center" border="0"><tr><th><h2>Holiday List - ' .  $currentYear . '</h1><br></th></tr></table>';
 	
 	echo '<table class="table10" align="center" border="1">';
 	echo '<tr class="table10 table11"><th width="60px" height="30px">No</th><th width="100px">Date</th><th width="100px">Weekday</th><th style="width:200px;">Description</th></tr>';

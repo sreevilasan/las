@@ -75,6 +75,7 @@
 
 	
 	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " " . $entityfilterclause . ";";
+//echo "entitysql=".$entitysql;
 
 	$rows = $db->select($entitysql);
 	if ($db->getError() != "") {
@@ -131,6 +132,9 @@
 			document.getElementById('filter_' + fieldid).value = result;
 			document.getElementById(entityid + "_" + fieldid + "_desc").innerHTML = description;
 		}
+		function displayImage(img) {
+			newwindow = window.open(img,'_blank','left=400,top=50,height=500,width=650,titlebar=no,toolbar=no,location=no');
+		}
 	</script>
 </head>
 	
@@ -142,6 +146,11 @@
 				<h1><?php echo $entitydescription; ?></h1>
 			</td>
 			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
+<?php		
+			if ($entityextrabutton != "") {	// add extra button for the entity
+				echo '<td>' . addExtraButton($entityextrabutton) . '</td>';
+			}
+?>			
 			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
 		</tr><td>
 	
@@ -153,14 +162,14 @@
 			
 <?php
 
-			if ($entityview = 'Y') {
+			if ($entityview == 'Y') {
 				echo '<th rowspan="2">View</th>';
 			}
-			
-			if ($entityedit = 'Y') {
+
+			if ($entityedit == 'Y') {
 				echo '<th rowspan="2">Edit</th>';
 			}
-			if ($entitydelete = 'Y') {
+			if ($entitydelete == 'Y') {
 				echo '<th rowspan="2">Delete</th>';
 			}
 			foreach ($entityfields as $entityfield)
@@ -202,11 +211,11 @@
 			echo '				<tr id="' . $row[$entityprimcol] . '">';
 			
 			if ($entityview == 'Y') {
-				echo '<td><a href="EntityDisplay.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">View</a></td>';
+				echo '<td><a href="EntityDisplay.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '&primarykey2=' . $row[$entityprimcol2] . '&primarykey3=' . $row[$entityprimcol3] . '&primarykey4=' . $row[$entityprimcol4] . '">View</a></td>';
 			}
 			
 			if ($entityedit == 'Y') {
-				echo '<td><a href="EntityAddUpd.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '">Edit</a></td>';
+				echo '<td><a href="EntityAddUpd.php?entityid=' . $entityid . '&primarykey=' . $row[$entityprimcol] . '&primarykey2=' . $row[$entityprimcol2] . '&primarykey3=' . $row[$entityprimcol3] . '&primarykey4=' . $row[$entityprimcol4] . '">Edit</a></td>';
 			}
 
 			if ($entitydelete == 'Y') {
@@ -243,6 +252,12 @@
 	<table border="0" align="left">
 		<tr>
 			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
+
+<?php		
+			if ($entityextrabutton != "") {	// add extra button for the entity
+				echo '<td>' . addExtraButton($entityextrabutton) . '</td>';
+			}
+?>
 			<td><button class="button button1" type="button" value="Quit" onclick="quit();">Quit</button></td>
 		</tr>
 	</table>
