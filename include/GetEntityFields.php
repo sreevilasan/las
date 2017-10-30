@@ -20,9 +20,6 @@
 	$entityprimcol4 = $row['primcol4'];	
 	$entitydescol = $row['descol'];
 	$selfgenprimkey = $row['selfgenprimkey'];
-	$entityview = $row['view'];
-	$entityedit = $row['edit'];
-	$entitydelete = $row['remove'];
 	$displayphoto = $row['displayphoto'];
 	$entitymenu = $row['menu'];
 	$entityextrabutton = $row['extrabutton'];
@@ -54,6 +51,7 @@
 		$entityfield['reftable'] = $row['reftable'];
 		$entityfield['refvalcol'] = $row['refvalcol'];
 		$entityfield['refdescol'] = $row['refdescol'];
+		$entityfield['refnextid'] = $row['refnextid'];
 		$entityfield['hidden'] = $row['hidden'];
 		$entityfield['search'] = $row['search'];
 		$entityfield['required'] = $row['required'];

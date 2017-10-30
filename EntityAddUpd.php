@@ -23,6 +23,14 @@
 		$primarykey3 = $_POST['primarykey3'];
 		$primarykey4 = $_POST['primarykey4'];
 	}
+	
+	// check user has permission to edit
+	$entityaccess = new EntityAccess($entityid, $UserRole);
+	if(!$entityaccess->hasEditAccess()) {
+		echo "<b>Access Denied</b> <br><br>";
+		echo "You don't have edit permission for entity : " . $entityid;
+		exit();
+	}
 
 	require 'include/GetEntityFields.php';
 
@@ -124,7 +132,7 @@
 					}
 			}
 		}
-		//header("location:EntitySearch.php?entityid=" . $entityid);
+		header("location:EntitySearch.php?entityid=" . $entityid);
 		//exit();
 	}
 
@@ -164,6 +172,8 @@
 		foreach ($entityfields as $entityfield)
 		{
 			$entityfield['value'] = $row[$entityfield['fieldid']];
+			//$entityfield['refvalcol'] = $row[$entityfield['refvalcol']];
+			//$entityfield['refdescol'] = $row[$entityfield['refdescol']];
 			$entityfields[$entityfield['fieldid']] = $entityfield;
 		}		
 	}
@@ -209,6 +219,12 @@
 				}
 			}
 		}
+		
+		function pad (str, max) {
+			str = str.toString();
+			return str.length < max ? pad("0" + str, max) : str;
+		}
+		
 		//function employeeNumber(a) {
 		//	return a;
 		//}
@@ -299,7 +315,7 @@
 		}
 		
 		function popitup(refentityid, fieldid) {
-			newwindow=window.open("EntitySearchHandler.php?entityid=" + refentityid + "&fieldid=" + fieldid,'_blank','left=400,top=50,height=500,width=600,titlebar=no,toolbar=no,location=no');
+			newwindow=window.open("EntitySearchHandler.php?entityid=" + refentityid + "&fieldid=" + fieldid,'_blank','left=500,top=50,height=500,width=800,titlebar=no,toolbar=no,location=no,scrollbars=yes,resizable=yes');
 			if (window.focus) {newwindow.focus()}
 			return false;
 		}
@@ -311,8 +327,26 @@
 		}
 		
 		function uploadImage(img) {
+			//document.getElementById('fileToUpload').click();
+			//imgfile = document.getElementById('fileToUpload').value;
+			//uploadfile(imgfile);
+//alert("imagefile="+imgfile);
 			newwindow = window.open('uploadFile.php','_blank','left=400,top=50,height=500,width=600,titlebar=no,toolbar=no,location=no');
 			//if (window.focus) {newwindow.focus();}
+		}
+		
+		function uploadfile(a) {
+			//displayImage(a);
+		}
+		
+		function displayImage(img) {
+			newwindow = window.open(img,'_blank','left=400,top=50,height=500,width=600,titlebar=no,toolbar=no,location=no');
+			//if (window.focus) {newwindow.focus();}
+		}
+		
+		function clearField(fid) {
+			document.getElementById(fid).value = "";
+			updateModifiedFlag();
 		}
 	
 	</script>
@@ -381,28 +415,23 @@
 			echo '					<th title="' . $entityfield['comment'] . '" align="right">' . $entityfield['description'] .': ' . '</th>';
 			echo "\n";
 			
+			echo "<td>\n";
 			if($entityfield['displaytype'] == "lookup") {
-				echo "						<td>\n";
 				echo '							<select onchange="updateModifiedFlag();" name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '">' . getLookupDropdown($entityfield['lookupid'], $entityfield['value'] ). "\n" . '							</select>';
-				echo "\n						</td>";
 			} elseif($entityfield['displaytype'] == "radio") {
-				echo "<td>\n";
-				echo getLookupRadio($entityfield['lookupid'], $entityfield['value'], $entityfield['fieldid']);
-				echo "</td>";								
+				echo getLookupRadio($entityfield['lookupid'], $entityfield['value'], $entityfield['fieldid']);							
 			} elseif($entityfield['displaytype'] == "dropdown") {
-				echo "						<td>\n";
-				echo '							<select onchange="updateModifiedFlag();" name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '">' . createDropDownString($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $entityfield['value'] ). "\n" . '							</select>';
-				echo "\n						</td>";
+				echo '<select onchange="updateModifiedFlag();" name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '">' . createDropDownString($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $entityfield['value'] ). "\n" . '							</select>';
 			} elseif($entityfield['displaytype'] == "entity") {
-				echo '					<td><input onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"> <button type="button" onclick="popitup(\'' . $entityfield['refentityid'] . '\', \'' . $entityfield['fieldid'] . '\');">...</button> ';
-				//echo '<input value="' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '">';						
-				echo '					<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value'], $entityfields[$entityfield['refentityprim1']]['value']) . '</span></td>';				
+				echo '<input onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"> <button type="button" onclick="clearField(\''.$entityfield['fieldid'].'\');">Clear</button> <button type="button" onclick="popitup(\'' . $entityfield['refentityid'] . '\', \'' . $entityfield['fieldid'] . '\');">Select</button>';					
+				echo '<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value'], $entityfields[$entityfield['refentityprim1']]['value']) . '</span>';				
+			} elseif($entityfield['displaytype'] == "nextid" && $primarykey == "") {
+				echo '<input onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . 'text' . '" value="' . getNextId($entityfield['reftable'], $entityfield['refnextid']) . '" >';			
 			} else {
-				echo '					<td><input title="' . $entityfield['comment'] . '" onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();"></td>';
+				echo '<input title="' . $entityfield['comment'] . '" onchange="updateModifiedFlag();" ' . $disabled . ' ' . $width . ' name="' . $entityfield['fieldid'] . '" id="' . $entityfield['fieldid'] . '" type="' . $inputtype . '" value="' . $entityfield['value'] . '" onchange="updateModifiedFlag();">';
 			}
-			echo "\n";
-			
-			echo "				</tr>\n";
+			echo "\n</td>";	
+			echo "</tr>\n";
 		}
 ?>
 		</table>
@@ -415,6 +444,7 @@
 		<input type="hidden" name="primarykey3" id="primarykey3" value="<?php echo $primarykey3; ?>">
 		<input type="hidden" name="dataModified" id="dataModified" value=false>
 		<input type="hidden" name="sessionid" id="sessionid" value="<?php echo $EmpId; ?>">
+		<input type="file" name="fileToUpload" id="fileToUpload" style="visibility: hidden;">
 		
 	</form>
 	

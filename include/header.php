@@ -9,7 +9,6 @@
 			<td align="center" width="60%"><font face="arial" size="4" color="#5500ff"><strong>
 			LAS Engineers & Consultants Pvt Ltd
 			</strong></font></td>
-			<!-- <td align="right" width="20%"><strong><?php echo $_SESSION['Name']; ?></strong></td> -->
 			<td align="right" width="20%" style="padding:4px"><font face="verdana" size="4"><b><i><?php echo $_SESSION['Name']; ?></i></b></strong></font></td>
 		</tr>
 	</table>

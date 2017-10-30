@@ -244,6 +244,8 @@ function createDropDown($table, $column1, $column2){
 function createDropDownString($table, $column1, $column2, $selectString, $disable = "disabled"){
 	$db = new Database();	// open database
 	$sql = "SELECT " . $column1 . ", " . $column2 . " FROM " . $table . ";";
+//echo "sql=".$sql;
+
 	$rows = $db->select($sql);
 	if ($db->getError() != "") {
 		echo $db->getError();
@@ -356,6 +358,29 @@ function getEmployeeName($eid) {
 	
 	return $employeeName;
 }
+
+// Function to return a new Id
+function getNextId($table, $nextidcolumn){
+	$db = new Database();	// open database
+	
+	$sql = "SELECT " . $nextidcolumn . ", max(" . $nextidcolumn . ") as maxval FROM " . $table . " ;";
+//echo "sql=".$sql;
+
+	$row = $db->select($sql, [], true);
+	if ($db->getError() != "") {
+		echo $db->getError();
+		exit();
+	}
+	$str = $row['' . $nextidcolumn . ''];
+	$pad_length = strlen($str);
+	$maxval = (int)$row['maxval'];
+	$nextval = $maxval + 1;
+	$nextid = str_pad($nextval, $pad_length, "0", STR_PAD_LEFT);
+	
+	$db->close();
+
+	return $nextid;
+} 
 
 function isaHoliday($idate) {
 	// check for public holiday
@@ -631,5 +656,63 @@ function generateDatabaseMenu($option=0) {
 		}
 
 		return '<button class="button button1" ' . $buttonType . ' ' . $buttonValue . ' ' . $buttonOnclick . '">'. $buttonName . '</button>';
+	}
+	
+	class EntityAccess {
+			private $entity = "";
+			private $read = false; 
+			private $edit = false; 
+			private $add = false; 
+			private $delete = false;
+
+		/* Constructor*/
+		public function __construct($v_entityid, $v_userRole) {
+			
+			$db = new Database();	// open database
+
+			$sql = "SELECT * FROM entityaccess where entityid='" . $v_entityid . "' and role='" . $v_userRole . "';";
+			$rows = $db->select($sql);				
+			if ($db->getError() != "") {
+				echo $db->getError();
+				exit();
+			}
+
+			foreach ($rows as $row) {
+				$accessPermission = "$" . strtoupper($row['accessid']);  // $ added to get index > 0
+	
+				if (strpos($accessPermission,"R") > 0) {
+					$this->read = true;
+				}
+				
+				if (strpos($accessPermission,"E") > 0) {
+					$this->edit = true;
+				}
+			
+				if (strpos($accessPermission,"A") > 0) {
+					$this->add = true;
+				}
+				
+				if (strpos($accessPermission,"D") > 0) {
+					$this->delete = true;
+				}			
+			}	
+			$db->close();
+		}
+		
+		public function hasReadAccess() {
+			return $this->read;
+		}
+		
+		public function hasEditAccess() {
+			return $this->edit;
+		}
+		
+		public function hasAddAccess() {
+			return $this->add;
+		}
+		
+		public function hasDeleteAccess() {
+			return $this->delete;
+		}
 	}
 ?>

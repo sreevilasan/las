@@ -30,7 +30,23 @@
 		<div class="dropdown">
 			<button class="dropbtn" onclick="meraFunction('projectDropdown')">Project</button>
 			<div class="dropdown-content" id="projectDropdown">
+<?php
+			$entityaccess = new EntityAccess("project", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=project">Add New Project</a>
+				<a href="EntitySearch.php?entityid=project">View Project</a>
+				<a href="EntitySearch.php?entityid=prjcat">View Project Category</a>
+				<a href="EntitySearch.php?entityid=prjscope">View Project Scope</a>
+				<a href="EntitySearch.php?entityid=prjtype">View Project Type</a>
+				<a href="EntityAddUpd.php?entityid=prjcontact">Add Project Contacts</a>
+<?php
+			} else {
+?>
 				<a href="projectdetails.php">View Project</a>
+<?php
+			}
+?>			
 				<a href="#helpcom">Help</a>
 			</div>
 		</div> 
@@ -38,7 +54,21 @@
 		<div class="dropdown">
 			<button class="dropbtn" onclick="meraFunction('companyDropdown')">Company</button>
 			<div class="dropdown-content" id="companyDropdown">
+<?php
+			$entityaccess = new EntityAccess("company", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=company">Add New Company</a>
+				<a href="EntitySearch.php?entityid=company">View Company</a>
+				<a href="EntitySearch.php?entityid=comcat">View Company Category</a>
+				<a href="EntityAddUpd.php?entityid=contact">Add Company Contact</a>
+<?php
+			} else {
+?>
 				<a href="companydetails.php">View Company</a>
+<?php
+			}
+?>				
 				<a href="#helpcom">Help</a>
 			</div>
 		</div> 
@@ -46,19 +76,90 @@
 		<div class="dropdown">
 			<button class="dropbtn" onclick="meraFunction('contactDropdown')">Contact</button>
 			<div class="dropdown-content" id="contactDropdown">
+<?php
+			$entityaccess = new EntityAccess("contact", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=contact">Add New Contact</a>
+				<a href="EntitySearch.php?entityid=contact">View Contact</a>
+				<a href="EntitySearch.php?entityid=prjcontact">Link Contact to Project</a>
+<?php
+			} else {
+?>
 				<a href="contactdetails.php">View Contact</a>
+<?php
+			}
+?>	
 				<a href="#helpcon">Help</a>
 			</div>
 		</div> 
 		
-		<a href="#document">Document</a>
-		<a href="#service">Service</a>
+		<div class="dropdown">
+			<button class="dropbtn" onclick="meraFunction('documentDropdown')">Document</button>
+			<div class="dropdown-content" id="documentDropdown">		
+<?php
+			$entityaccess = new EntityAccess("document", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=document">Add New Document</a>	
+				<a href="EntitySearch.php?entityid=document">View Document</a>	
+				<a href="DocSent.php">Send Document</a>	
+				<a href="DocReceive.php">Receive Document</a>	
+				<a href="DocUpdate.php">Update Document</a>					
+<?php
+			} else {
+?>
+				<!--<a href="contactdetails.php">View Contact</a>-->
+<?php
+			}
+?>
+			</div>
+		</div> 	
+		
+		<div class="dropdown">
+			<button class="dropbtn" onclick="meraFunction('serviceDropdown')">Service</button>
+			<div class="dropdown-content" id="serviceDropdown">
+			
+<?php
+			$entityaccess = new EntityAccess("service", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=service">Add New Service</a>
+				<a href="EntitySearch.php?entityid=service">View Service</a>
+				<a href="EntitySearch.php?entityid=servicedept">View Service Department</a>
+				<a href="EntitySearch.php?entityid=servicelink">Link Service to Company</a>
+			
+<?php
+			} else {
+?>
+				<!--<a href="contactdetails.php">View Contact</a>-->
+<?php
+			}
+?>	
+				<a href="#helpcon">Help</a>
+			</div>
+		</div> 
+		
 
 		<div class="dropdown">
 			<button class="dropbtn" onclick="meraFunction('employeeDropdown')">Employee</button>
 			<div class="dropdown-content" id="employeeDropdown">
+<?php
+			$entityaccess = new EntityAccess("employee", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="EntityAddUpd.php?entityid=employee">Add New Employee</a>
+				<a href="EntitySearch.php?entityid=employee">View Employee</a>
+				<a href="EntitySearch.php?entityid=department">View Department</a>
+				<a href="SeatingArrangement.php">View Seating Arrangement</a>
+<?php
+			} else {
+?>
 				<a href="employeedetails.php">View Employee</a>
-				<a href="SeatingArrangement.php">Seating Arrangement</a>
+				<a href="SeatingArrangement.php">View Seating Arrangement</a>
+<?php
+			}
+?>
 			</div>
 		</div> 
 		
@@ -69,6 +170,29 @@
 				<a href="ManHours.php?view=approver">Approve Timesheet</a>
 				<a href="TimesheetStatus.php">Timesheet Status</a>
 				<a href="HolidayList.php">Holiday List</a>
+			</div>
+		</div> 
+		
+		<div class="dropdown">
+			<button class="dropbtn" onclick="meraFunction('assetDropdown')">Asset</button>
+			<div class="dropdown-content" id="assetDropdown">
+<?php
+			$entityaccess = new EntityAccess("asset", $UserRole);
+			if ($entityaccess->hasReadAccess()) {
+?>
+				<a href="assetdetails.php">Asset List</a>
+				<a href="EntityAddUpd.php?entityid=asset">Add New Asset</a>
+				<a href="EntitySearch.php?entityid=asset">View Asset</a>
+				<a href="EntitySearch.php?entityid=assettype">View Asset Type</a>
+				<a href="EntitySearch.php?entityid=assetsubtype">View Asset Subtype</a>
+				<a href="EntitySearch.php?entityid=seat">View Seat Details</a>
+<?php
+			} else {
+?>
+				<a href="assetdetails.php">Asset List</a>
+<?php
+			}
+?>
 			</div>
 		</div> 
 	
@@ -136,6 +260,12 @@ function meraFunction(s) {
 	if(s != 'contactDropdown') {
 		document.getElementById('contactDropdown').classList.remove('show');
 	}
+	if(s != 'documentDropdown') {
+		document.getElementById('documentDropdown').classList.remove('show');
+	}
+	if(s != 'serviceDropdown') {
+		document.getElementById('serviceDropdown').classList.remove('show');
+	}
 	
 	if(s != 'reportDropdown') {
 		document.getElementById('reportDropdown').classList.remove('show');
@@ -146,6 +276,9 @@ function meraFunction(s) {
 	}
 	if(s != 'DbaDropdown') {
 		document.getElementById('DbaDropdown').classList.remove('show');
+	}
+	if(s != 'assetDropdown') {
+		document.getElementById('assetDropdown').classList.remove('show');
 	}
 	if(s != 'myDropdown') {
 		document.getElementById('myDropdown').classList.remove('show');
@@ -161,9 +294,12 @@ window.onclick = function(e) {
 		document.getElementById('projectDropdown').classList.remove('show');
 		document.getElementById('companyDropdown').classList.remove('show');
 		document.getElementById('contactDropdown').classList.remove('show');
+		document.getElementById('documentDropdown').classList.remove('show');
+		document.getElementById('serviceDropdown').classList.remove('show');
 		document.getElementById('reportDropdown').classList.remove('show');
 		document.getElementById('DatabaseDropdown').classList.remove('show');
 		document.getElementById('DbaDropdown').classList.remove('show');
+		document.getElementById('assetDropdown').classList.remove('show');
 		document.getElementById('myDropdown').classList.remove('show');
 	}
 

@@ -18,6 +18,14 @@
 		$primarykey = $_POST['primarykey']; 
 	}
 	
+	// check user has permission to delete
+	$entityaccess = new EntityAccess($entityid, $UserRole);
+	if(!$entityaccess->hasDeleteAccess()) {
+		echo "<b>Access Denied</b> <br><br>";
+		echo "You don't have required permission for entity : " . $entityid;
+		exit();
+	}
+	
 	require 'include/GetEntityFields.php';
 
 	$db = new Database();	// open database
@@ -31,7 +39,6 @@
 			echo $db->getError();
 			exit();
 		}		
-
 	}
 
 	$db->close();	// Close database  

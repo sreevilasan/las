@@ -16,6 +16,34 @@
 		$entityid = $_POST['_entityid'];
 	}
 	
+	$entityaccess = new EntityAccess($entityid, $UserRole);
+	
+	if($entityaccess->hasReadAccess()) {
+		$entityview = 'Y';
+	} else {
+		echo "<b>Access Denied</b> <br><br>";
+		echo "You don't have required permission for entity : " . $entityid;
+		exit();
+	}
+	
+	if($entityaccess->hasEditAccess()) {
+		$entityedit = 'Y';
+	} else {
+		$entityedit = 'N';
+	}
+	
+	if($entityaccess->hasDeleteAccess()) {
+		$entitydelete = 'Y';
+	} else {
+		$entitydelete = 'N';
+	}
+
+	if($entityaccess->hasAddAccess()) {
+		$entityadd = 'Y';
+	} else {
+		$entityadd = 'N';	
+	}
+	
 	require 'include/GetEntityFields.php';
 	
 	// make entity sql query
@@ -30,6 +58,7 @@
 	
 	$filtermap;
 	$entityfilterclause = "where 1=1 ";
+	$entitysortclause = "";
 	
 	foreach ($entityfields as $entityfield)
 	{
@@ -37,8 +66,11 @@
 		if($entityfield['search'] == "Y") {
 			$filtervalue = "";
 			$filtervalue = $_GET['filter_' . $entityfield['fieldid']]; 
+			$sortvalue = $_GET['sort']; 
 			if($_SERVER['REQUEST_METHOD'] == 'POST') {
 				$filtervalue = $_POST['filter_' . $entityfield['fieldid']];
+				$sortvalue = $_POST['_sort'];
+				$sortorder = $_POST['_order'];
 			}
 			
 			$tempfilter['fieldid'] = $entityfield['fieldid'];
@@ -73,9 +105,18 @@
 		}
 	}
 
-	
-	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " " . $entityfilterclause . ";";
-//echo "entitysql=".$entitysql;
+	$entitysortclause = $sortvalue;
+	$entitysql = "SELECT " . $entitysql . "FROM " . $entityprimtable . " " . $entityfilterclause ;
+	if ($sortvalue != "") {
+		$entitysql .= " order by " . $entitysortclause;
+		if ($sortorder != "") {
+			$entitysql .= $sortorder;
+			$sortorder = "";
+		} else {
+			$sortorder = " desc ";
+		}
+	}
+	$entitysql .= ";";
 
 	$rows = $db->select($entitysql);
 	if ($db->getError() != "") {
@@ -135,6 +176,12 @@
 		function displayImage(img) {
 			newwindow = window.open(img,'_blank','left=400,top=50,height=500,width=650,titlebar=no,toolbar=no,location=no');
 		}
+		function sorta(a) {
+			document.getElementById("_sort").value = a.substring(5);
+			var reloadurl = document.getElementById("filterform").action;
+			document.getElementById("filterform").submit();
+			//document.location = reloadurl + "?entityid=" + document.getElementById("_entityid").value+"&sort="+a.substring(5);
+		}
 	</script>
 </head>
 	
@@ -145,7 +192,9 @@
 			<td colspan="2">
 				<h1><?php echo $entitydescription; ?></h1>
 			</td>
+<?php if ($entityadd == "Y") { ?>
 			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
+<?php } ?>
 <?php		
 			if ($entityextrabutton != "") {	// add extra button for the entity
 				echo '<td>' . addExtraButton($entityextrabutton) . '</td>';
@@ -157,11 +206,13 @@
 <?php if (isSearchable($entityid) == "true") { ?>
 	<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" id="filterform" onsubmit=";">
 		<input type="hidden" name="_entityid" id="_entityid" value="<?php echo $entityid; ?>">
+		<input type="hidden" name="_sort" id="_sort" value="<?php echo $sortvalue; ?>">
+		<input type="hidden" name="_order" id="_order" value="<?php echo $sortorder; ?>">
 		<table class="tabinput" border="1">
 			<tr>
 			
 <?php
-
+//echo "values=".$entityview.$entityedit.$entitydelete.$entityadd;
 			if ($entityview == 'Y') {
 				echo '<th rowspan="2">View</th>';
 			}
@@ -187,20 +238,25 @@
 				if($entityfield['search'] == "Y") {
 					echo '<th>';
 					if ($entityfield['displaytype'] == 'entity') {
-						echo '<input size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $entityfield['value'] . '" > <button type="button" onclick="popitup(\'' . $entityfield['refentityid'] . '\', \'' . $entityfield['fieldid'] . '\');">...</button> ';
-						echo '<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $entityfield['value']) . '</span>';
+						echo '<input size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '" > <button type="button" onclick="popitup(\'' . $entityfield['refentityid'] . '\', \'' . $entityfield['fieldid'] . '\');">...</button> ';
+						echo '<span id="' . $entityfield['refentityid'] . '_' . $entityfield['fieldid'] . '_desc" >' . getEntityDescription($entityfield['refentityid'], $filtermap[$entityfield['fieldid']]['value']) . '</span>';
 					} else if ($entityfield['displaytype'] == 'dropdown') {
 						echo '<select name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" >' . createDropDownString($entityfield['reftable'], $entityfield['refvalcol'], $entityfield['refdescol'], $filtermap[$entityfield['fieldid']]['value'], ""). '</select>';
 					} else if ($entityfield['displaytype'] == 'date') {
 						echo '<input type="date" size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '">';
 					} else {
+						if ($sortorder != "") {
+							$sortsymbol = "&#8681;";
+						} else {
+							$sortsymbol = "&#8679;";
+						}
 						echo '<input type="text" size="' . $entityfield['width'] . '" name="filter_' . $entityfield['fieldid'] . '" id="filter_' . $entityfield['fieldid'] . '" value="' . $filtermap[$entityfield['fieldid']]['value'] . '">';
+						echo '<button type="button" name="sort_' . $entityfield['fieldid'] . '" id="sort_' . $entityfield['fieldid'] . '" value="' . $entityfield['fieldid'] . '" onclick="sorta(' . 'name' .');">' . $sortsymbol . '</button>';
 					}
 					echo '</th>';
 				}
 			}
-?>
-				
+?>				
 			</tr>
 	</form>
 <?php } ?>
@@ -251,8 +307,9 @@
 
 	<table border="0" align="left">
 		<tr>
+<?php if ($entityadd == "Y") { ?>
 			<td><button class="button button1" type="button" value="add" onclick="addnew();">Add New <?php echo $entitydescription; ?></button></td>
-
+<?php } ?>
 <?php		
 			if ($entityextrabutton != "") {	// add extra button for the entity
 				echo '<td>' . addExtraButton($entityextrabutton) . '</td>';

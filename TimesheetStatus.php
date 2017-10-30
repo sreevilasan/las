@@ -80,7 +80,7 @@ function loadFromToDate() {
 		}
 
 		$fromDate = date("d-M-Y",strtotime($row['tdate']));
-		$toDate = getNewDate($row['tdate'],7,"d-M-Y");
+		$toDate = getNewDate($row['tdate'],6,"d-M-Y");
 
 		if ($row['status'] == "S") {
 			$tsStatus = "Submitted for Approval";
